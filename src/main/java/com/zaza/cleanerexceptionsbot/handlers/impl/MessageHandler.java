@@ -36,6 +36,8 @@ public class MessageHandler implements Handler {
     private final DeleteUbisoftGameCommand deleteUbisoftGameCommand;
     private final AddBattleNetGameCommand addBattleNetGameCommand;
     private final DeleteBattleNetGameCommand deleteBattleNetGameCommand;
+    private final PayCommand payCommand;
+    private final SuccessPayCommand successPayCommand;
 
     private Map<String, Command<Long>> commands;
 
@@ -53,6 +55,8 @@ public class MessageHandler implements Handler {
         commands.put(Commands.DELETE_UBISOFT_GAME, deleteUbisoftGameCommand);
         commands.put(Commands.ADD_BATTLENET_GAME, addBattleNetGameCommand);
         commands.put(Commands.DELETE_BATTLENET_GAME, deleteBattleNetGameCommand);
+        commands.put(Commands.PAY_COMMAND, payCommand);
+        commands.put(Commands.SUCCESS_PAY_COMMAND, successPayCommand);
         log.info("Set commands");
     }
 
@@ -63,6 +67,9 @@ public class MessageHandler implements Handler {
 
     @Override
     public boolean supports(Update update) {
+        if (update.getMessage().hasSuccessfulPayment()) {
+            return true;
+        }
         if (!update.hasMessage() || !update.getMessage().hasText()) {
             return false;
         }
@@ -76,6 +83,11 @@ public class MessageHandler implements Handler {
     public void handle(Update update) {
         Message message = update.getMessage();
         Long chatId = message.getChatId();
+
+        if (message.hasSuccessfulPayment()) {
+            processCustomCommand(chatId, "success_pay");
+        }
+
         String text = message.getText();
 
         log.info("Handling command from: " + chatId);

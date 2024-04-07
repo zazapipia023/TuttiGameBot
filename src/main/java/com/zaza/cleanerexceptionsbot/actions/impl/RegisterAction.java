@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -38,6 +40,7 @@ public class RegisterAction implements Action {
             registerClub.setEgsGames(DefaultGames.egsGames);
             registerClub.setSteamGames(DefaultGames.steamGames);
             registerClub.setVkGames(DefaultGames.vkGames);
+            registerClub.setUbisoftGames(Collections.emptyList());
             registerClub.setBattleNetGames(DefaultGames.battleNetGames);
             registerClub.setSubDate(LocalDateTime.now());
 

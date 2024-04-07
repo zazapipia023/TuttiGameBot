@@ -16,5 +16,7 @@ public final class Commands {
     public static final String DELETE_UBISOFT_GAME = "/delete_ubisoft_game";
     public static final String ADD_BATTLENET_GAME = "/add_battlenet_game";
     public static final String DELETE_BATTLENET_GAME = "/delete_battlenet_game";
+    public static final String PAY_COMMAND = "/pay";
+    public static final String SUCCESS_PAY_COMMAND = "success_pay";
 
 }
