@@ -4,6 +4,7 @@ import com.zaza.cleanerexceptionsbot.commands.Command;
 import com.zaza.cleanerexceptionsbot.sender.TelegramSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.invoices.SendInvoice;
 import org.telegram.telegrambots.meta.api.objects.payments.LabeledPrice;
@@ -16,7 +17,9 @@ import java.util.List;
 public class PayCommand implements Command<Long> {
 
     private final TelegramSender telegramSender;
-    private final String PAYMENT_TOKEN;
+
+    @Value("${payment.token}")
+    private String PAYMENT_TOKEN;
 
     @Override
     public void execute(Long chatId) {

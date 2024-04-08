@@ -16,13 +16,15 @@ public class UpdateHandler implements Handler {
 
     private final MessageHandler messageHandler;
     private final ActionHandler actionHandler;
+    private final CheckoutQueryHandler checkoutQueryHandler;
 
     private Set<Handler> getHandlers() {
         Set<Handler> handlers = new LinkedHashSet<>();
 
         handlers.add(messageHandler);
         handlers.add(actionHandler);
-        log.info("Set handlers for bot");
+        handlers.add(checkoutQueryHandler);
+
         return handlers;
     }
 

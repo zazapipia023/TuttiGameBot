@@ -15,6 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 @Slf4j
@@ -67,14 +68,16 @@ public class MessageHandler implements Handler {
 
     @Override
     public boolean supports(Update update) {
-        if (update.getMessage().hasSuccessfulPayment()) {
+        if (update.hasMessage() && update.getMessage().hasSuccessfulPayment()) {
             return true;
         }
-        if (!update.hasMessage() || !update.getMessage().hasText()) {
+
+        Optional<Message> messageOptional = Optional.ofNullable(update.getMessage());
+        if (!messageOptional.isPresent() || !messageOptional.get().hasText()) {
             return false;
         }
 
-        String text = update.getMessage().getText();
+        String text = messageOptional.get().getText();
         return text.startsWith(Commands.START_COMMAND) ||
         text.startsWith(Commands.REGISTER)|| commands.containsKey(text);
     }
@@ -86,6 +89,8 @@ public class MessageHandler implements Handler {
 
         if (message.hasSuccessfulPayment()) {
             processCustomCommand(chatId, "success_pay");
+            log.info("Handled command from: " + chatId);
+            return;
         }
 
         String text = message.getText();
