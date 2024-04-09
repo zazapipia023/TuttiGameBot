@@ -30,7 +30,7 @@ public class TelegramBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
 
         if (updateHandler.supports(update)) {
-            log.info("Handling update: " + update.getUpdateId());
+            log.info("Handling update: " + update.getUpdateId() + "\n" + update);
             updateHandler.handle(update);
             log.info("Handled update: " + update.getUpdateId());
         }
