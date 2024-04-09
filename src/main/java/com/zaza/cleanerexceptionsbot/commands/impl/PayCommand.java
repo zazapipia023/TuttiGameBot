@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.methods.invoices.SendInvoice;
 import org.telegram.telegrambots.meta.api.objects.payments.LabeledPrice;
 
 import java.util.List;
+import java.util.Random;
 
 @Component
 @Slf4j
@@ -35,7 +36,9 @@ public class PayCommand implements Command<Long> {
         sendInvoice.setPrices(List.of(product));
         sendInvoice.setTitle("Подписка на сервис");
         sendInvoice.setDescription("Месячная подписка на сервис очистки дисков");
-        sendInvoice.setPayload("1");
+        Random random = new Random();
+        int number = random.nextInt(900000) + 100000;
+        sendInvoice.setPayload(String.valueOf(number));
         sendInvoice.setProviderToken(PAYMENT_TOKEN);
 
         telegramSender.sendInvoice(sendInvoice);
