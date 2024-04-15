@@ -4,6 +4,7 @@ import com.zaza.cleanerexceptionsbot.commands.Command;
 import com.zaza.cleanerexceptionsbot.sender.TelegramSender;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.invoices.SendInvoice;
@@ -40,7 +41,34 @@ public class PayCommand implements Command<Long> {
         int number = random.nextInt(900000) + 100000;
         sendInvoice.setPayload(String.valueOf(number));
         sendInvoice.setProviderToken(PAYMENT_TOKEN);
+        sendInvoice.setNeedEmail(true);
+        sendInvoice.setSendEmailToProvider(true);
+        sendInvoice.setProviderData(buildProviderData());
 
         telegramSender.sendInvoice(sendInvoice);
+    }
+
+    private String buildProviderData() {
+        JSONObject providerData = new JSONObject();
+        JSONObject receipt = new JSONObject();
+
+        JSONObject[] items = new JSONObject[1];
+        JSONObject item = new JSONObject();
+        item.put("description", "Подписка на сервис очистки дисков");
+        item.put("quantity", "1");
+
+        JSONObject amount = new JSONObject();
+        amount.put("value", "600.00");
+        amount.put("currency", "RUB");
+
+        item.put("amount", amount);
+        item.put("vat_code", 1);
+        items[0] = item;
+
+        receipt.put("items", items);
+
+        providerData.put("receipt", receipt);
+
+        return providerData.toString();
     }
 }
