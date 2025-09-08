@@ -1,4 +1,4 @@
-package com.zaza.cleanerexceptionsbot.config;
+package com.zaza.tuttifruttibot.config;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;

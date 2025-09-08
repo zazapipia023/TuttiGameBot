@@ -1,13 +1,13 @@
-package com.zaza.cleanerexceptionsbot;
+package com.zaza.tuttifruttibot;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class CleanerExceptionsBotApplication {
+public class TuttiFruttiBotApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(CleanerExceptionsBotApplication.class, args);
+		SpringApplication.run(TuttiFruttiBotApplication.class, args);
 	}
 
 }

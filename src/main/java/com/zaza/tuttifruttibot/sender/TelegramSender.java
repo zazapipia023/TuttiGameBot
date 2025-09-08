@@ -1,6 +1,6 @@
-package com.zaza.cleanerexceptionsbot.sender;
+package com.zaza.tuttifruttibot.sender;
 
-import com.zaza.cleanerexceptionsbot.config.BotConfig;
+import com.zaza.tuttifruttibot.config.BotConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.DefaultAbsSender;
