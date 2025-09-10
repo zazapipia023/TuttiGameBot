@@ -60,28 +60,28 @@ public class TelegramBot extends TelegramLongPollingBot {
                 case "/tutti_frutti@idrakG_bot", "/tutti_frutti@colizeum_csa_bot" -> {
                     log.info("Processing /tutti_frutti command from chat {}", chatId);
                     String response = tuttiService.makeIceCream(update);
-                    telegramSender.sendMessage(chatId, response);
+                    telegramSender.sendMessage(chatId, response, update.getMessage().getMessageId());
                     log.debug("Successfully processed /tutti_frutti command");
                 }
 
                 case "/tutti_frutti_top@idrakG_bot", "/tutti_frutti_top@colizeum_csa_bot" -> {
                     log.info("Processing /tutti_frutti_top command from chat {}", chatId);
                     String response = tuttiService.makeTop();
-                    telegramSender.sendMessage(chatId, response);
+                    telegramSender.sendMessage(chatId, response, update.getMessage().getMessageId());
                     log.debug("Successfully processed /tutti_frutti_top command");
                 }
 
                 case "/tutti_frutti_sell@idrakG_bot", "/tutti_frutti_sell@colizeum_csa_bot" -> {
                     log.info("Processing /tutti_frutti_sell command from chat {}", chatId);
                     String response = tuttiService.sellIceCream(update);
-                    telegramSender.sendMessage(chatId, response);
+                    telegramSender.sendMessage(chatId, response, update.getMessage().getMessageId());
                     log.debug("Successfully processed /tutti_frutti_sell command");
                 }
 
                 case "/tutti_frutti_check@idrakG_bot", "/tutti_frutti_check@colizeum_csa_bot" -> {
                     log.info("Processing /tutti_frutti_check command from chat {}", chatId);
                     String response = tuttiService.getIceCreamValue(update);
-                    telegramSender.sendMessage(chatId, response);
+                    telegramSender.sendMessage(chatId, response, update.getMessage().getMessageId());
                     log.debug("Successfully processed /tutti_frutti_check command");
                 }
 
@@ -91,14 +91,14 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
         } catch (Exception e) {
             log.error("Error processing command: {} in chat {}", messageText, chatId, e);
-            handleProcessingError(chatId, e);
+            handleProcessingError(chatId, e, update.getMessage().getMessageId());
         }
     }
 
-    private void handleProcessingError(Long chatId, Exception e) {
+    private void handleProcessingError(Long chatId, Exception e, Integer userMessageId) {
         try {
             String errorMessage = "Произошла ошибка при обработке команды. Попробуйте позже.";
-            telegramSender.sendMessage(chatId, errorMessage);
+            telegramSender.sendMessage(chatId, errorMessage, userMessageId);
             log.warn("Sent error message to chat {}", chatId);
         } catch (Exception ex) {
             log.error("Failed to send error message to chat {}", chatId, ex);
