@@ -1,6 +1,7 @@
 package com.zaza.tuttifruttibot.sender;
 
 import com.zaza.tuttifruttibot.config.BotConfig;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.DefaultAbsSender;
@@ -10,6 +11,7 @@ import org.telegram.telegrambots.meta.api.methods.invoices.SendInvoice;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+@Slf4j
 @Component
 public class TelegramSender extends DefaultAbsSender {
 
@@ -19,10 +21,12 @@ public class TelegramSender extends DefaultAbsSender {
     protected TelegramSender(BotConfig botConfig) {
         super(new DefaultBotOptions());
         this.botConfig = botConfig;
+        log.info("TelegramSender initialized");
     }
 
     @Override
     public String getBotToken() {
+        log.trace("Getting bot token");
         return botConfig.getBotToken();
     }
 
