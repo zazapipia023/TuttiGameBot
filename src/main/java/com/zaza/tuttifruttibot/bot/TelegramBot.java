@@ -21,33 +21,87 @@ public class TelegramBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
+        log.debug("Getting bot username: {}", botConfig.getBotName());
         return botConfig.getBotName();
     }
 
     @Override
     public String getBotToken() {
+        log.trace("Getting bot token");
         return botConfig.getBotToken();
     }
 
     @Override
     public void onUpdateReceived(Update update) {
-        Long chatId = update.getMessage().getChatId();
-
-        if (update.getMessage().isSuperGroupMessage()) {
-            switch (update.getMessage().getText()) {
-                case "/tutti_frutti@idrakG_bot", "/tutti_frutti@colizeum_csa_bot" ->
-                        telegramSender.sendMessage(chatId, tuttiService.makeIceCream(update));
-
-                case "/tutti_frutti_top@idrakG_bot", "/tutti_frutti_top@colizeum_csa_bot" ->
-                        telegramSender.sendMessage(chatId, tuttiService.makeTop());
-
-                case "/tutti_frutti_sell@idrakG_bot", "/tutti_frutti_sell@colizeum_csa_bot" ->
-                        telegramSender.sendMessage(chatId, tuttiService.sellIceCream(update));
-
-                case "/tutti_frutti_check@idrakG_bot", "/tutti_frutti_check@colizeum_csa_bot" ->
-                        telegramSender.sendMessage(chatId, tuttiService.getIceCreamValue(update));
-            }
+        if (!update.hasMessage() || !update.getMessage().hasText()) {
+            log.debug("Received update without message or text: {}", update);
+            return;
         }
 
+        Long chatId = update.getMessage().getChatId();
+        String messageText = update.getMessage().getText();
+        String userName = update.getMessage().getFrom().getUserName();
+        String firstName = update.getMessage().getFrom().getFirstName();
+
+        log.info("Received message from {} ({}): {} in chat {}",
+                userName, firstName, messageText, chatId);
+
+        if (update.getMessage().isSuperGroupMessage()) {
+            log.debug("Message is from supergroup: {}", chatId);
+            processGroupMessage(update, chatId, messageText);
+        } else {
+            log.debug("Message is not from supergroup, ignoring: {}", chatId);
+        }
+    }
+
+    private void processGroupMessage(Update update, Long chatId, String messageText) {
+        try {
+            switch (messageText) {
+                case "/tutti_frutti@idrakG_bot", "/tutti_frutti@colizeum_csa_bot" -> {
+                    log.info("Processing /tutti_frutti command from chat {}", chatId);
+                    String response = tuttiService.makeIceCream(update);
+                    telegramSender.sendMessage(chatId, response);
+                    log.debug("Successfully processed /tutti_frutti command");
+                }
+
+                case "/tutti_frutti_top@idrakG_bot", "/tutti_frutti_top@colizeum_csa_bot" -> {
+                    log.info("Processing /tutti_frutti_top command from chat {}", chatId);
+                    String response = tuttiService.makeTop();
+                    telegramSender.sendMessage(chatId, response);
+                    log.debug("Successfully processed /tutti_frutti_top command");
+                }
+
+                case "/tutti_frutti_sell@idrakG_bot", "/tutti_frutti_sell@colizeum_csa_bot" -> {
+                    log.info("Processing /tutti_frutti_sell command from chat {}", chatId);
+                    String response = tuttiService.sellIceCream(update);
+                    telegramSender.sendMessage(chatId, response);
+                    log.debug("Successfully processed /tutti_frutti_sell command");
+                }
+
+                case "/tutti_frutti_check@idrakG_bot", "/tutti_frutti_check@colizeum_csa_bot" -> {
+                    log.info("Processing /tutti_frutti_check command from chat {}", chatId);
+                    String response = tuttiService.getIceCreamValue(update);
+                    telegramSender.sendMessage(chatId, response);
+                    log.debug("Successfully processed /tutti_frutti_check command");
+                }
+
+                default -> {
+                    log.debug("Unknown command received: {}", messageText);
+                }
+            }
+        } catch (Exception e) {
+            log.error("Error processing command: {} in chat {}", messageText, chatId, e);
+            handleProcessingError(chatId, e);
+        }
+    }
+
+    private void handleProcessingError(Long chatId, Exception e) {
+        try {
+            String errorMessage = "Произошла ошибка при обработке команды. Попробуйте позже.";
+            telegramSender.sendMessage(chatId, errorMessage);
+            log.warn("Sent error message to chat {}", chatId);
+        } catch (Exception ex) {
+            log.error("Failed to send error message to chat {}", chatId, ex);
+        }
     }
 }
