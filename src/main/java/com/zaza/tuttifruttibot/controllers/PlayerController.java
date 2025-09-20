@@ -1,11 +1,14 @@
 package com.zaza.tuttifruttibot.controllers;
 
+import com.github.javafaker.Faker;
+import com.zaza.tuttifruttibot.models.IceShop;
 import com.zaza.tuttifruttibot.models.Player;
 import com.zaza.tuttifruttibot.services.PlayerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -14,6 +17,8 @@ import java.util.List;
 public class PlayerController {
 
     private final PlayerService playerService;
+    private final IceShopController iceShopController;
+    private final Faker faker = new Faker();
 
     public Player findPlayer(Long id) {
         log.debug("Finding player by ID: {}", id);
@@ -52,4 +57,8 @@ public class PlayerController {
         log.info("Player {} saved successfully", player.getName());
     }
 
+    public void processShopBuying(Player player, Integer openShopCost) {
+        player.setProfit(player.getProfit() - openShopCost);
+        savePlayer(player);
+    }
 }

@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -22,9 +23,9 @@ public class TuttiFruttiService {
     private final Map<Long, LocalDateTime> commandCooldowns = new ConcurrentHashMap<>();
     private final Map<Long, LocalDateTime> sellCooldowns = new ConcurrentHashMap<>();
 
-    private static final int COOLDOWN_HOURS = 5;
-    private static final int SELL_COOLDOWN_HOURS = 1;
-    private static final double POSITIVE_PROBABILITY = 0.8;
+    private static final int COOLDOWN_HOURS = 12;
+    private static final int SELL_COOLDOWN_HOURS = 4;
+    private static final double POSITIVE_PROBABILITY = 0.9;
     private static final double SELL_POSITIVE_PROBABILITY = 0.98;
 
     public String makeIceCream(Update update) {
@@ -44,7 +45,7 @@ public class TuttiFruttiService {
         Player player = getOrCreatePlayer(playerId, playerName);
         log.debug("Player data: {}", player);
 
-        int value = generateRandomValue(-500, 1000, POSITIVE_PROBABILITY);
+        int value = generateRandomValue(-1500, 5000, POSITIVE_PROBABILITY);
         log.info("Generated random value: {} for player {}", value, playerName);
 
         int newValue = Math.max(player.getValue() + value, 0);
@@ -64,7 +65,7 @@ public class TuttiFruttiService {
 
         if (player == null) {
             log.warn("Player with ID {} not found for getIceCreamValue", playerId);
-            return "Сначала введи команду /tutti_frutti";
+            return "Сначала введи команду /tutti_frutti@idrakG_bot";
         }
 
         log.info("Returning value for player {}: {} grams, {} rub profit",
@@ -125,7 +126,7 @@ public class TuttiFruttiService {
 
         if (player == null) {
             log.info("Creating new player with ID: {}, Name: {}", playerId, playerName);
-            player = new Player(playerId, playerName, 0, 0);
+            player = new Player(playerId, "none", playerName, 0, 0, Collections.emptyList());
         } else {
             log.debug("Existing player found: {}", player);
         }
