@@ -3,6 +3,8 @@ package com.zaza.tuttifruttibot.models;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "player")
@@ -15,6 +17,9 @@ public class Player {
     @Column(name = "id")
     private Long id;
 
+    @Column(name = "action")
+    private String action;
+
     @Column(name = "name")
     private String name;
 
@@ -23,5 +28,8 @@ public class Player {
 
     @Column(name = "profit")
     private Integer profit;
+
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<IceShop> shops = new ArrayList<>();
 
 }
