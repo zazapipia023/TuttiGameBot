@@ -8,6 +8,7 @@ import com.zaza.tuttifruttibot.sender.TelegramSender;
 import com.zaza.tuttifruttibot.upgrades.HardwareEquipment;
 import com.zaza.tuttifruttibot.upgrades.IceCreamTypes;
 import com.zaza.tuttifruttibot.upgrades.Toppings;
+import com.zaza.tuttifruttibot.utils.KeyboardUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,6 +17,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Component
@@ -92,7 +94,7 @@ public class TuttiShopService {
                 .append(shops.isEmpty() ? "У вас нет открытых точек" : "Ваши открытые точки:\n\n");
 
         shops.forEach(shop -> {
-            shopsData.append(shop.getShopName()).append(" | В сейфе: ").append(shop.getProfit()).append(" руб. | На складе: ").append(shop.getValue()).append(" гр.");
+            shopsData.append(shop.getShopName()).append(" | В сейфе: ").append(shop.getProfit()).append(" руб. | На складе: ").append(shop.getValue()).append(" гр.\n");
         });
 
         return shopsData.toString();
@@ -100,7 +102,23 @@ public class TuttiShopService {
 
     public void processToppingUpgrade(String topping, Long chatId, Long userId, String callbackId) {
         Player player = playerController.findPlayer(userId);
-        IceShop iceShop = iceShopController.findPlayersShops(player).get(0);
+        List<IceShop> iceShops = iceShopController.findPlayersShops(player);
+        IceShop iceShop = null;
+        if (iceShops.isEmpty()) {
+            telegramSender.sendAlertResponse(callbackId, "У тебя еще нет открытой точки!");
+            return;
+        } else {
+            for (int i = 0; i < iceShops.size(); i++) {
+                if (!iceShops.get(i).getUpgrades().contains(topping)) {
+                    iceShop = iceShops.get(i);
+                    break;
+                }
+            }
+            if (iceShop == null) {
+                telegramSender.sendAlertResponse(callbackId, "На всех твоих точках есть этот топпинг!");
+                return;
+            }
+        }
 
         if (iceShop.getProfit() < TOPPING_COST) {
             telegramSender.sendAlertResponse(callbackId, "На точке недостаточно денег для покупки топпинга.");
@@ -121,7 +139,23 @@ public class TuttiShopService {
 
     public void processIceCreamUpgrade(String iceCream, Long chatId, Long userId, String callbackId) {
         Player player = playerController.findPlayer(userId);
-        IceShop iceShop = iceShopController.findPlayersShops(player).get(0);
+        List<IceShop> iceShops = iceShopController.findPlayersShops(player);
+        IceShop iceShop = null;
+        if (iceShops.isEmpty()) {
+            telegramSender.sendAlertResponse(callbackId, "У тебя еще нет открытой точки!");
+            return;
+        } else {
+            for (int i = 0; i < iceShops.size(); i++) {
+                if (!iceShops.get(i).getUpgrades().contains(iceCream)) {
+                    iceShop = iceShops.get(i);
+                    break;
+                }
+            }
+            if (iceShop == null) {
+                telegramSender.sendAlertResponse(callbackId, "На всех твоих точках есть этот вкус мороженого!");
+                return;
+            }
+        }
 
         if (iceShop.getProfit() < ICE_CREAM_COST) {
             telegramSender.sendAlertResponse(callbackId, "На точке недостаточно денег для покупки мороженого.");
@@ -142,7 +176,23 @@ public class TuttiShopService {
 
     public void processHardwareUpgrade(String hardware, Long chatId, Long userId, String callbackId) {
         Player player = playerController.findPlayer(userId);
-        IceShop iceShop = iceShopController.findPlayersShops(player).get(0);
+        List<IceShop> iceShops = iceShopController.findPlayersShops(player);
+        IceShop iceShop = null;
+        if (iceShops.isEmpty()) {
+            telegramSender.sendAlertResponse(callbackId, "У тебя еще нет открытой точки!");
+            return;
+        } else {
+            for (int i = 0; i < iceShops.size(); i++) {
+                if (!iceShops.get(i).getUpgrades().contains(hardware)) {
+                    iceShop = iceShops.get(i);
+                    break;
+                }
+            }
+            if (iceShop == null) {
+                telegramSender.sendAlertResponse(callbackId, "На всех твоих точках есть эта фурнитура!");
+                return;
+            }
+        }
 
         if (iceShop.getProfit() < HARDWARE_COST) {
             telegramSender.sendAlertResponse(callbackId, "На точке недостаточно денег для покупки фурнитуры.");
@@ -162,18 +212,52 @@ public class TuttiShopService {
     }
 
     private double saleIndex(List<String> upgrades) {
-        String randomUpgrade = upgrades.get(ThreadLocalRandom.current().nextInt(0, upgrades.size() - 1));
-        log.info("random upgrade for saleIndex: {}", randomUpgrade);
-        if (Toppings.isTopping(randomUpgrade)) {
-            return Toppings.getIndex(randomUpgrade);
+        try {
+            String randomUpgrade = upgrades.get(ThreadLocalRandom.current().nextInt(0, upgrades.size() - 1));
+            log.info("random upgrade for saleIndex: {}", randomUpgrade);
+            if (Toppings.isTopping(randomUpgrade)) {
+                return Toppings.getIndex(randomUpgrade);
+            }
+            if (HardwareEquipment.isHardwareEquipment(randomUpgrade)) {
+                return HardwareEquipment.getIndex(randomUpgrade);
+            }
+            if (IceCreamTypes.isIceCreamType(randomUpgrade)) {
+                return IceCreamTypes.getIndex(randomUpgrade);
+            }
+            log.debug("random upgrade not in enum: {}", randomUpgrade);
+        } catch (IndexOutOfBoundsException e) {
+            log.info("no upgrades in list, returning 1.");
+            return 1;
         }
-        if (HardwareEquipment.isHardwareEquipment(randomUpgrade)) {
-            return HardwareEquipment.getIndex(randomUpgrade);
-        }
-        if (IceCreamTypes.isIceCreamType(randomUpgrade)) {
-            return IceCreamTypes.getIndex(randomUpgrade);
-        }
-        log.debug("random upgrade not in enum: {}", randomUpgrade);
         return 1;
+    }
+
+    public void processEncashment(Long chatId, Integer messageId, Long userId) {
+        Player player = playerController.findPlayer(userId);
+        List<IceShop> iceShops = iceShopController.findPlayersShops(player);
+        if (iceShops.isEmpty()) {
+            telegramSender.editMessageWithMarkup(chatId, messageId, "Нет открытых точек", KeyboardUtils.createBackKeyboardMarkup());
+            return;
+        }
+        AtomicInteger encashmentMoney = new AtomicInteger();
+
+        iceShops.forEach(iceShop -> {
+            encashmentMoney.addAndGet(iceShop.getProfit());
+            iceShop.setProfit(0);
+        });
+
+        player.setProfit(player.getProfit() + encashmentMoney.get());
+        playerController.savePlayer(player);
+        iceShopController.saveAllShops(iceShops);
+
+        String text;
+        if (encashmentMoney.get() == 0) {
+            text = "На точках нет денег для инкассации.";
+        } else {
+            text = "На твой баланс инкассировано " + encashmentMoney.get() + " руб.";
+        }
+
+
+        telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createBackKeyboardMarkup());
     }
 }
