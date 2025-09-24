@@ -20,6 +20,19 @@ public class KeyboardUtils {
         return inlineKeyboard;
     }
 
+    public static InlineKeyboardMarkup createBackKeyboardMarkup() {
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        row1.add(createInlineButton("Назад", "back"));
+
+        rows.add(row1);
+
+        inlineKeyboard.setKeyboard(rows);
+        return inlineKeyboard;
+    }
+
     public static InlineKeyboardMarkup createInlineKeyboard() {
         InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
@@ -30,7 +43,7 @@ public class KeyboardUtils {
 
         List<InlineKeyboardButton> row2 = new ArrayList<>();
         row2.add(createInlineButton("In Progress", "statistics_shop1"));
-        row2.add(createInlineButton("In Progress", "actions_shop1"));
+        row2.add(createInlineButton("Действия", "actions_shop"));
 
         rows.add(row1);
         rows.add(row2);
@@ -77,8 +90,7 @@ public class KeyboardUtils {
             }
             case "actions_shop" -> {
                 List<InlineKeyboardButton> row1 = new ArrayList<>();
-                row1.add(createInlineButton("Отправить мороженое", "send_cream"));
-                row1.add(createInlineButton("Перевести деньги", "send_profit"));
+                row1.add(createInlineButton("Инкассация", "take_profit"));
 
                 List<InlineKeyboardButton> row2 = new ArrayList<>();
                 row2.add(createInlineButton("Назад", "back"));

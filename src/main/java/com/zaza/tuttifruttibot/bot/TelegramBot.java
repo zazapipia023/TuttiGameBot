@@ -142,6 +142,9 @@ public class TelegramBot extends TelegramLongPollingBot {
                 String text = "Стоимость фурнитуры: 150.000 рублей.\n\nВыбери, что хочешь поставить на точку.";
                 telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createNewKeyboard(callbackData));
             }
+            case "take_profit" -> {
+                tuttiShopService.processEncashment(chatId, messageId, userId);
+            }
         }
     }
 
