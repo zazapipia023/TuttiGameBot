@@ -32,7 +32,11 @@ public class IceShop {
     @Column(name = "profit")
     private Integer profit;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "ice_shop_upgrades",
+            joinColumns = @JoinColumn(name = "ice_shop_id")
+    )
     @Column(name = "upgrades")
     private List<String> upgrades;
 

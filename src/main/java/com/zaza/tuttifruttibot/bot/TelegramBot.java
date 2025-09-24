@@ -5,6 +5,9 @@ import com.zaza.tuttifruttibot.config.BotContext;
 import com.zaza.tuttifruttibot.game.TuttiShopService;
 import com.zaza.tuttifruttibot.game.TuttiFruttiService;
 import com.zaza.tuttifruttibot.sender.TelegramSender;
+import com.zaza.tuttifruttibot.upgrades.HardwareEquipment;
+import com.zaza.tuttifruttibot.upgrades.IceCreamTypes;
+import com.zaza.tuttifruttibot.upgrades.Toppings;
 import com.zaza.tuttifruttibot.utils.KeyboardUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -82,6 +85,19 @@ public class TelegramBot extends TelegramLongPollingBot {
             return;
         }
 
+        if (Toppings.isTopping(callbackData)) {
+            tuttiShopService.processToppingUpgrade(callbackData, chatId, userId, update.getCallbackQuery().getId());
+            return;
+        }
+        if (HardwareEquipment.isHardwareEquipment(callbackData)) {
+            tuttiShopService.processHardwareUpgrade(callbackData, chatId, userId, update.getCallbackQuery().getId());
+            return;
+        }
+        if (IceCreamTypes.isIceCreamType(callbackData)) {
+            tuttiShopService.processIceCreamUpgrade(callbackData, chatId, userId, update.getCallbackQuery().getId());
+            return;
+        }
+
 
         switch (callbackData) {
             case "create_shop" -> {
@@ -113,6 +129,18 @@ public class TelegramBot extends TelegramLongPollingBot {
                     text = "У вас недостаточно денег для открытия точки.";
                 }
                 telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createEmptyKeyboardMarkup());
+            }
+            case "toppings" -> {
+                String text = "Стоимость топпинга: 15.000 рублей.\n\nВыбери, какой хочешь купить на точку.";
+                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createNewKeyboard(callbackData));
+            }
+            case "ice_cream" -> {
+                String text = "Стоимость нового вкуса: 65.000 рублей.\n\nВыбери, какой хочешь купить на точку.";
+                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createNewKeyboard(callbackData));
+            }
+            case "hardware" -> {
+                String text = "Стоимость фурнитуры: 150.000 рублей.\n\nВыбери, что хочешь поставить на точку.";
+                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createNewKeyboard(callbackData));
             }
         }
     }
