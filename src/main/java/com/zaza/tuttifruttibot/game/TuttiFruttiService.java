@@ -23,9 +23,9 @@ public class TuttiFruttiService {
     private final Map<Long, LocalDateTime> commandCooldowns = new ConcurrentHashMap<>();
     private final Map<Long, LocalDateTime> sellCooldowns = new ConcurrentHashMap<>();
 
-    private static final int COOLDOWN_HOURS = 12;
-    private static final int SELL_COOLDOWN_HOURS = 4;
-    private static final double POSITIVE_PROBABILITY = 0.9;
+    private static final int COOLDOWN_HOURS = 6;
+    private static final int SELL_COOLDOWN_HOURS = 3;
+    private static final double POSITIVE_PROBABILITY = 0.8;
     private static final double SELL_POSITIVE_PROBABILITY = 0.98;
 
     public String makeIceCream(Update update) {
@@ -45,7 +45,7 @@ public class TuttiFruttiService {
         Player player = getOrCreatePlayer(playerId, playerName);
         log.debug("Player data: {}", player);
 
-        int value = generateRandomValue(-1500, 5000, POSITIVE_PROBABILITY);
+        int value = generateRandomValue(-1500, 8000, POSITIVE_PROBABILITY);
         log.info("Generated random value: {} for player {}", value, playerName);
 
         int newValue = Math.max(player.getValue() + value, 0);
@@ -225,7 +225,7 @@ public class TuttiFruttiService {
         int loss = value * 3;
 
         player.setValue(oldValue - value);
-        player.setProfit(Math.max(oldProfit - loss, 0)); // Prevent negative profit
+        player.setProfit(Math.max(oldProfit - loss, 0));
         playerController.savePlayer(player);
 
         log.info("Sale failed - Player: {}, Lost: {}g, Penalty: -{} rub, New total: {}g, {} rub",

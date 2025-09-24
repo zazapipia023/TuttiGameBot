@@ -100,9 +100,22 @@ public class TelegramSender extends DefaultAbsSender {
         }
     }
 
+    public void sendAlertResponse(String callbackQueryId, String message) {
+        AnswerCallbackQuery response = new AnswerCallbackQuery();
+        response.setText(message);
+        response.setShowAlert(true);
+        response.setCallbackQueryId(callbackQueryId);
+
+        try {
+            execute(response);
+        } catch (TelegramApiException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public void sendNotYourMessageResponse(String callbackQueryId) {
         AnswerCallbackQuery response = new AnswerCallbackQuery();
-        response.setText("Этот вопрос не для тебя!");
+        response.setText("Эти кнопки не для тебя!");
         response.setShowAlert(true);
         response.setCallbackQueryId(callbackQueryId);
 
