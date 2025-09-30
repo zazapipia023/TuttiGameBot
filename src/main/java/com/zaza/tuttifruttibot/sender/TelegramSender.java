@@ -48,7 +48,7 @@ public class TelegramSender extends DefaultAbsSender {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setText(message);
-
+        log.info("Sending message to user, chatId: {}", chatId);
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
@@ -61,6 +61,7 @@ public class TelegramSender extends DefaultAbsSender {
         sendMessage.setChatId(chatId);
         sendMessage.setText(message);
 
+        log.info("Sending message with delete mark, chatId: {}", chatId);
         try {
             Message sentMessage = execute(sendMessage);
             scheduleMessageDeletion(sentMessage.getChatId(), sentMessage.getMessageId());
@@ -75,7 +76,7 @@ public class TelegramSender extends DefaultAbsSender {
         sendMessage.setChatId(chatId);
         sendMessage.setText(message);
         sendMessage.setReplyMarkup(markup);
-
+        log.info("Sending message to user with markup: {}", userId);
         try {
             Message sentMessage = execute(sendMessage);
             Integer messageId = sentMessage.getMessageId();
@@ -92,7 +93,7 @@ public class TelegramSender extends DefaultAbsSender {
         editMessage.setText(text);
         editMessage.setReplyMarkup(markup);
 
-
+        log.info("Editing message with markup, messageId: {}, text: {}", messageId, text);
         try {
             execute(editMessage);
         } catch (TelegramApiException e) {
@@ -105,7 +106,7 @@ public class TelegramSender extends DefaultAbsSender {
         response.setText(message);
         response.setShowAlert(true);
         response.setCallbackQueryId(callbackQueryId);
-
+        log.info("Sending Alert Response, callbackQueryId: {}, message: {}", callbackQueryId, message);
         try {
             execute(response);
         } catch (TelegramApiException e) {
@@ -119,6 +120,7 @@ public class TelegramSender extends DefaultAbsSender {
         response.setShowAlert(true);
         response.setCallbackQueryId(callbackQueryId);
 
+        log.info("Sending \"Not your message\" callback response");
         try {
             execute(response);
         } catch (TelegramApiException e) {
@@ -127,6 +129,7 @@ public class TelegramSender extends DefaultAbsSender {
     }
 
     public void deleteMessage(Long chatId, Integer userMessageId) {
+        log.info("Deleting message with id {}", userMessageId);
         try {
             DeleteMessage deleteMessage = new DeleteMessage();
             deleteMessage.setChatId(chatId);
@@ -140,12 +143,13 @@ public class TelegramSender extends DefaultAbsSender {
     private void scheduleMessageDeletion(Long chatId, Integer messageId) {
         scheduler.schedule(() -> {
             try {
+                log.info("Schedule deleting message with id {}", messageId);
                 DeleteMessage deleteMessage = new DeleteMessage();
                 deleteMessage.setChatId(chatId.toString());
                 deleteMessage.setMessageId(messageId);
                 execute(deleteMessage);
             } catch (TelegramApiException e) {
-                System.err.println("Не удалось удалить сообщение: " + e.getMessage());
+                log.error("Error while deleting message: {}", e.getMessage());
             }
         }, 1, TimeUnit.MINUTES);
     }

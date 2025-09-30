@@ -40,4 +40,10 @@ public class IceShop {
     @Column(name = "upgrades")
     private List<String> upgrades;
 
+    @Column(name = "total_profit")
+    private Integer totalProfit;
+
+    @Column(name = "total_cream")
+    private Integer totalCream;
+
 }
