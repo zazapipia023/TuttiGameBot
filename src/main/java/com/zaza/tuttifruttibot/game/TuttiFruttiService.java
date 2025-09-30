@@ -180,7 +180,7 @@ public class TuttiFruttiService {
     private String formatResultMessage(String playerName, int value, int newValue) {
         log.debug("Formatting result message for {} - value: {}, newValue: {}", playerName, value, newValue);
         return playerName + ", " +
-                (value < 0 ? "куда-то пропало " + Math.abs(value) + " гр. мороженого при инвентаризации.\n" :
+                (value < 0 ? "тебе пришлось угостить Ахмеда. " + Math.abs(value) + " гр. мороженого он съел.\n" :
                         "тебе привезли " + value + " гр. мороженого.\n") +
                 "Теперь у тебя " + newValue + " гр. мороженого на точке.";
     }
@@ -189,7 +189,7 @@ public class TuttiFruttiService {
         log.info("Processing sale for player: {}", player.getName());
         int min = 100;
         int max = player.getValue();
-        int value = ThreadLocalRandom.current().nextInt(min, max + 1);
+        int value = ThreadLocalRandom.current().nextInt(min, max / 2);
         log.debug("Sale amount determined: {} grams (range: {}-{})", value, min, max);
 
         double random = ThreadLocalRandom.current().nextDouble();

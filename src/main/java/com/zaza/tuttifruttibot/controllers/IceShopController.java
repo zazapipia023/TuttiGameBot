@@ -7,12 +7,13 @@ import com.zaza.tuttifruttibot.services.IceShopService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class IceShopController {
 
@@ -45,6 +46,8 @@ public class IceShopController {
         iceShop.setShopName(faker.company().name());
         iceShop.setProfit(0);
         iceShop.setValue(0);
+        iceShop.setTotalCream(0);
+        iceShop.setTotalProfit(0);
         iceShop.setUpgrades(new ArrayList<>());
         saveIceShop(iceShop);
     }

@@ -109,8 +109,8 @@ public class TelegramBot extends TelegramLongPollingBot {
                 telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createNewKeyboard(callbackData));
             }
             case "statistics_shop" -> {
-                String text = "Статистика твоей точки:\n";
-                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createNewKeyboard(callbackData));
+                String text = tuttiShopService.getShopStats(userId);
+                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createBackKeyboardMarkup());
             }
             case "actions_shop" -> {
                 String text = "Выбери доступное действие:";

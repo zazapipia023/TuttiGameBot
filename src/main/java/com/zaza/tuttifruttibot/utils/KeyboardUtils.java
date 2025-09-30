@@ -42,7 +42,7 @@ public class KeyboardUtils {
         row1.add(createInlineButton("Улучшения", "upgrade_shop"));
 
         List<InlineKeyboardButton> row2 = new ArrayList<>();
-        row2.add(createInlineButton("In Progress", "statistics_shop1"));
+        row2.add(createInlineButton("Статистика", "statistics_shop"));
         row2.add(createInlineButton("Действия", "actions_shop"));
 
         rows.add(row1);
