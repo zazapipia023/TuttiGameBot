@@ -81,7 +81,7 @@ public class TuttiFruttiService {
 
         if (player == null) {
             log.warn("Player with ID {} not found for sellIceCream", playerId);
-            return "Сначала введи команду /tutti_frutti";
+            return "Сначала введи команду /tutti_frutti@idrakG_bot";
         }
 
         log.debug("Found player: {} with value: {}", player.getName(), player.getValue());
