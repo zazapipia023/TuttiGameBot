@@ -100,13 +100,21 @@ public class TelegramBot extends TelegramLongPollingBot {
 
 
         switch (callbackData) {
+            case "cream_income" -> {
+                String text = tuttiService.makeIceCream(update);
+                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createGameKeyboard());
+            }
+            case "cream_sell" -> {
+                String text = tuttiService.sellIceCream(update);
+                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createGameKeyboard());
+            }
             case "create_shop" -> {
                 String text = "Чтобы открыть новую точку, нужно 500.000 рублей.";
-                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createNewKeyboard(callbackData));
+                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createProcessShopKeyboard(callbackData));
             }
             case "upgrade_shop" -> {
                 String text = "Выбери, что ты хочешь добавить на свою точку";
-                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createNewKeyboard(callbackData));
+                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createProcessShopKeyboard(callbackData));
             }
             case "statistics_shop" -> {
                 String text = tuttiShopService.getShopStats(userId);
@@ -114,11 +122,11 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
             case "actions_shop" -> {
                 String text = "Выбери доступное действие:";
-                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createNewKeyboard(callbackData));
+                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createProcessShopKeyboard(callbackData));
             }
             case "back" -> {
                 String text = "Выбери доступное действие:";
-                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createInlineKeyboard());
+                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createShopKeyboard());
             }
             case "open_shop" -> {
                 boolean isShopOpened = tuttiShopService.processShopBuying(userId);
@@ -132,15 +140,15 @@ public class TelegramBot extends TelegramLongPollingBot {
             }
             case "toppings" -> {
                 String text = "Стоимость топпинга: 15.000 рублей.\n\nВыбери, какой хочешь купить на точку.";
-                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createNewKeyboard(callbackData));
+                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createProcessShopKeyboard(callbackData));
             }
             case "ice_cream" -> {
                 String text = "Стоимость нового вкуса: 65.000 рублей.\n\nВыбери, какой хочешь купить на точку.";
-                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createNewKeyboard(callbackData));
+                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createProcessShopKeyboard(callbackData));
             }
             case "hardware" -> {
                 String text = "Стоимость фурнитуры: 150.000 рублей.\n\nВыбери, что хочешь поставить на точку.";
-                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createNewKeyboard(callbackData));
+                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createProcessShopKeyboard(callbackData));
             }
             case "take_profit" -> {
                 tuttiShopService.processEncashment(chatId, messageId, userId);
@@ -153,8 +161,8 @@ public class TelegramBot extends TelegramLongPollingBot {
             switch (messageText) {
                 case "/tutti_frutti@idrakG_bot", "/tutti_frutti@colizeum_csa_bot" -> {
                     log.info("Processing /tutti_frutti command from chat {}", chatId);
-                    String response = tuttiService.makeIceCream(update);
-                    telegramSender.sendDeletingMessage(chatId, response, update.getMessage().getMessageId());
+                    String response = tuttiService.getPlayerData(update.getMessage().getFrom().getId());
+                    telegramSender.sendMessage(chatId, response, update.getMessage().getFrom().getId(), KeyboardUtils.createGameKeyboard());
                     log.debug("Successfully processed /tutti_frutti command");
                 }
 
@@ -165,20 +173,6 @@ public class TelegramBot extends TelegramLongPollingBot {
                     log.debug("Successfully processed /tutti_frutti_top command");
                 }
 
-                case "/tutti_frutti_sell@idrakG_bot", "/tutti_frutti_sell@colizeum_csa_bot" -> {
-                    log.info("Processing /tutti_frutti_sell command from chat {}", chatId);
-                    String response = tuttiService.sellIceCream(update);
-                    telegramSender.sendMessage(chatId, response);
-                    log.debug("Successfully processed /tutti_frutti_sell command");
-                }
-
-                case "/tutti_frutti_check@idrakG_bot", "/tutti_frutti_check@colizeum_csa_bot" -> {
-                    log.info("Processing /tutti_frutti_check command from chat {}", chatId);
-                    String response = tuttiService.getIceCreamValue(update);
-                    telegramSender.sendDeletingMessage(chatId, response, update.getMessage().getMessageId());
-                    log.debug("Successfully processed /tutti_frutti_check command");
-                }
-
                 case "/tutti_frutti_shop@idrakG_bot", "/tutti_frutti_shop@colizeum_csa_bot" -> {
                     log.info("Processing /tutti_frutti_shop command from chat {}", chatId);
                     if (botContext.getData(update.getMessage().getFrom().getId()) != null) {
@@ -186,7 +180,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                     }
 
                     String response = tuttiShopService.getShopsData(update);
-                    telegramSender.sendMessage(chatId, response, update.getMessage().getFrom().getId(), KeyboardUtils.createInlineKeyboard());
+                    telegramSender.sendMessage(chatId, response, update.getMessage().getFrom().getId(), KeyboardUtils.createShopKeyboard());
                     log.debug("Successfully processed /tutti_frutti_shop command");
                 }
 

@@ -20,6 +20,23 @@ public class KeyboardUtils {
         return inlineKeyboard;
     }
 
+    public static InlineKeyboardMarkup createGameKeyboard() {
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        row1.add(createInlineButton("Поставка", "cream_income"));
+
+        List<InlineKeyboardButton> row2 = new ArrayList<>();
+        row2.add(createInlineButton("Продать", "cream_sell"));
+
+        rows.add(row1);
+        rows.add(row2);
+
+        inlineKeyboard.setKeyboard(rows);
+        return inlineKeyboard;
+    }
+
     public static InlineKeyboardMarkup createBackKeyboardMarkup() {
         InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
@@ -33,7 +50,7 @@ public class KeyboardUtils {
         return inlineKeyboard;
     }
 
-    public static InlineKeyboardMarkup createInlineKeyboard() {
+    public static InlineKeyboardMarkup createShopKeyboard() {
         InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
@@ -52,7 +69,7 @@ public class KeyboardUtils {
         return inlineKeyboard;
     }
 
-    public static InlineKeyboardMarkup createNewKeyboard(String selectedOption) {
+    public static InlineKeyboardMarkup createProcessShopKeyboard(String selectedOption) {
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
 
