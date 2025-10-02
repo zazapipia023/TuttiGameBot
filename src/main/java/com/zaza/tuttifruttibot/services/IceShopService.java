@@ -34,6 +34,7 @@ public class IceShopService {
     public void save(IceShop iceShop) {
         try {
             IceShop savedIceShop = iceShopRepository.save(iceShop);
+            log.info("Saved IceShop: {}", savedIceShop);
         } catch (Exception e) {
             throw new RuntimeException("Error saving shop to database", e);
         }

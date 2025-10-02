@@ -37,6 +37,8 @@ public class IceShopController {
     }
 
     public void saveIceShop(IceShop iceShop) {
+        log.info("Saving shop: {}", iceShop.getShopName());
+        log.debug("Shop data before saving - Shop Owner: {}", iceShop.getPlayer().getName());
         iceShopService.save(iceShop);
     }
 
