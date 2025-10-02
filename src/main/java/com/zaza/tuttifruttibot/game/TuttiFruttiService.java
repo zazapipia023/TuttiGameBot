@@ -30,8 +30,8 @@ public class TuttiFruttiService {
 
     public String makeIceCream(Update update) {
         log.info("makeIceCream started");
-        Long playerId = update.getMessage().getFrom().getId();
-        String playerName = update.getMessage().getFrom().getFirstName();
+        Long playerId = update.getMessage() == null ? update.getCallbackQuery().getFrom().getId() : update.getMessage().getFrom().getId();
+        String playerName = update.getMessage() == null ? update.getCallbackQuery().getFrom().getFirstName() : update.getMessage().getFrom().getFirstName();
         log.debug("Player info - ID: {}, Name: {}", playerId, playerName);
 
         if (isOnCooldown(playerId, commandCooldowns, COOLDOWN_HOURS)) {
@@ -76,7 +76,7 @@ public class TuttiFruttiService {
 
     public String sellIceCream(Update update) {
         log.info("sellIceCream started");
-        Long playerId = update.getMessage().getFrom().getId();
+        Long playerId = update.getMessage() == null ? update.getCallbackQuery().getFrom().getId() : update.getMessage().getFrom().getId();
         Player player = playerController.findPlayer(playerId);
 
         if (player == null) {
@@ -233,5 +233,15 @@ public class TuttiFruttiService {
 
         return player.getName() + ", ты засмотрелся на жопу студентки, и у тебя спиздили " + value + " гр. мороженого.\n" +
                 "Тебе пришлось заплатить " + loss + " руб.";
+    }
+
+    public String getPlayerData(Long userId) {
+        Player player = playerController.findPlayer(userId);
+
+        StringBuilder sb = new StringBuilder("У тебя:\n")
+                .append("Мороженое: ").append(player.getValue()).append(" гр.\n")
+                .append("Баланс: ").append(player.getProfit()).append(" руб.");
+
+        return sb.toString();
     }
 }
