@@ -1,14 +1,6 @@
 package com.zaza.tuttifruttibot.bot;
 
 import com.zaza.tuttifruttibot.config.BotConfig;
-import com.zaza.tuttifruttibot.config.BotContext;
-import com.zaza.tuttifruttibot.game.TuttiShopService;
-import com.zaza.tuttifruttibot.game.TuttiFruttiService;
-import com.zaza.tuttifruttibot.sender.TelegramSender;
-import com.zaza.tuttifruttibot.upgrades.HardwareEquipment;
-import com.zaza.tuttifruttibot.upgrades.IceCreamTypes;
-import com.zaza.tuttifruttibot.upgrades.Toppings;
-import com.zaza.tuttifruttibot.utils.KeyboardUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
