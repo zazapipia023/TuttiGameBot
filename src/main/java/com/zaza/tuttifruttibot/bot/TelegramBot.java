@@ -102,11 +102,11 @@ public class TelegramBot extends TelegramLongPollingBot {
         switch (callbackData) {
             case "cream_income" -> {
                 String text = tuttiService.makeIceCream(update);
-                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createGameKeyboard());
+                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createBackGameKeyboard());
             }
             case "cream_sell" -> {
                 String text = tuttiService.sellIceCream(update);
-                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createGameKeyboard());
+                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createBackGameKeyboard());
             }
             case "create_shop" -> {
                 String text = "Чтобы открыть новую точку, нужно 500.000 рублей.";
@@ -127,6 +127,10 @@ public class TelegramBot extends TelegramLongPollingBot {
             case "back" -> {
                 String text = "Выбери доступное действие:";
                 telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createShopKeyboard());
+            }
+            case "back_game" -> {
+                String text = "Выбери доступное действие:";
+                telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createGameKeyboard());
             }
             case "open_shop" -> {
                 boolean isShopOpened = tuttiShopService.processShopBuying(userId);
