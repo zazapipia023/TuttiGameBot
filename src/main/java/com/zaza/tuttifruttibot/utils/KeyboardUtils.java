@@ -50,6 +50,19 @@ public class KeyboardUtils {
         return inlineKeyboard;
     }
 
+    public static InlineKeyboardMarkup createBackGameKeyboard() {
+        InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rows = new ArrayList<>();
+
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        row1.add(createInlineButton("Назад", "back_game"));
+
+        rows.add(row1);
+
+        inlineKeyboard.setKeyboard(rows);
+        return inlineKeyboard;
+    }
+
     public static InlineKeyboardMarkup createShopKeyboard() {
         InlineKeyboardMarkup inlineKeyboard = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> rows = new ArrayList<>();
