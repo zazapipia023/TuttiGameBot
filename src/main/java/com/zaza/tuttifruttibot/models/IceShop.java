@@ -15,8 +15,13 @@ import java.util.List;
 public class IceShop {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ice_shop_seq")
+    @SequenceGenerator(
+            name = "ice_shop_seq",
+            sequenceName = "ice_shop_id_seq",
+            allocationSize = 50
+    )
     @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "shop_name")

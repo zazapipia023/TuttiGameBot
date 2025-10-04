@@ -28,7 +28,7 @@ public class GroupMessageHandler {
             switch (messageText) {
                 case "/tutti_frutti@idrakG_bot", "/tutti_frutti@colizeum_csa_bot" -> {
                     log.info("Processing /tutti_frutti command from chat {}", chatId);
-                    String response = tuttiFruttiService.getPlayerData(update.getMessage().getFrom().getId());
+                    String response = tuttiFruttiService.getPlayerData(update.getMessage().getFrom().getId(), update.getMessage().getFrom().getFirstName());
                     telegramSender.sendMessage(chatId, response, update.getMessage().getFrom().getId(), KeyboardUtils.createGameKeyboard());
                     log.debug("Successfully processed /tutti_frutti command");
                 }
