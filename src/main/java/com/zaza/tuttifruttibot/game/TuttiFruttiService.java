@@ -235,8 +235,17 @@ public class TuttiFruttiService {
                 "Тебе пришлось заплатить " + loss + " руб.";
     }
 
-    public String getPlayerData(Long userId) {
+    public String getPlayerData(Long userId, String name) {
         Player player = playerController.findPlayer(userId);
+        if (player == null) {
+            player = new Player();
+            player.setId(userId);
+            player.setName(name);
+            player.setProfit(0);
+            player.setValue(0);
+            player.setAction("none");
+            playerController.savePlayer(player);
+        }
 
         StringBuilder sb = new StringBuilder("У тебя:\n")
                 .append("Мороженое: ").append(player.getValue()).append(" гр.\n")
