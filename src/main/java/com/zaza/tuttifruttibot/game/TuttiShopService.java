@@ -10,6 +10,7 @@ import com.zaza.tuttifruttibot.upgrades.IceCreamTypes;
 import com.zaza.tuttifruttibot.upgrades.Toppings;
 import com.zaza.tuttifruttibot.upgrades.UpgradeType;
 import com.zaza.tuttifruttibot.utils.KeyboardUtils;
+import com.zaza.tuttifruttibot.utils.TelegramEmoji;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -110,14 +111,20 @@ public class TuttiShopService {
             return NO_SHOPS_MESSAGE;
         }
 
-        StringBuilder shopsData = new StringBuilder("Ваши открытые точки:\n\n");
+        StringBuilder shopsData = new StringBuilder();
+        shopsData.append(TelegramEmoji.SHAVED_ICE.getEmojiCode());
+        shopsData.append("*Ваши открытые точки:*");
+        shopsData.append(TelegramEmoji.SHAVED_ICE.getEmojiCode());
+        shopsData.append("\n\n");
         shops.forEach(shop ->
-                shopsData.append(shop.getShopName())
-                        .append(" | В сейфе: ")
+                shopsData.append(TelegramEmoji.ICE_CREAM.getEmojiCode())
+                        .append(shop.getShopName())
+                        .append(TelegramEmoji.ICE_CREAM.getEmojiCode())
+                        .append(" \\| В сейфе: ")
                         .append(shop.getProfit())
-                        .append(" руб. | На складе: ")
+                        .append(" руб\\. \\| На складе: ")
                         .append(shop.getValue())
-                        .append(" гр.\n")
+                        .append(" гр\\.\n")
         );
 
         return shopsData.toString();
@@ -257,8 +264,8 @@ public class TuttiShopService {
         iceShopController.saveAllShops(iceShops);
 
         String text = encashmentMoney.get() == 0
-                ? "На точках нет денег для инкассации."
-                : "На твой баланс инкассировано " + encashmentMoney.get() + " руб.";
+                ? "На точках нет денег для инкассации\\."
+                : "На твой баланс инкассировано " + encashmentMoney.get() + " руб\\.";
 
         telegramSender.editMessageWithMarkup(chatId, messageId, text,
                 KeyboardUtils.createBackKeyboardMarkup());
@@ -272,11 +279,16 @@ public class TuttiShopService {
             return NO_SHOPS_MESSAGE;
         }
 
-        StringBuilder sb = new StringBuilder("Статистика ваших точек:\n\n");
+        StringBuilder sb = new StringBuilder();
+        sb.append(TelegramEmoji.SHAVED_ICE.getEmojiCode());
+        sb.append("*Статистика ваших точек:*");
+        sb.append(TelegramEmoji.SHAVED_ICE.getEmojiCode());
+        sb.append("\n\n");
         iceShops.forEach(shop ->
-                sb.append(shop.getShopName()).append(":\n")
-                        .append("Общий доход (руб.): ").append(shop.getTotalProfit()).append("\n")
-                        .append("Всего мороженого продано (гр.): ").append(shop.getTotalCream()).append("\n")
+                sb.append("*__")
+                        .append(shop.getShopName()).append("__:*\n")
+                        .append("Общий доход \\(руб\\.\\): ").append(shop.getTotalProfit()).append("\n")
+                        .append("Всего мороженого продано \\(гр\\.\\): ").append(shop.getTotalCream()).append("\n")
                         .append("Количество улучшений: ").append(shop.getUpgrades().size()).append("\n\n")
         );
 

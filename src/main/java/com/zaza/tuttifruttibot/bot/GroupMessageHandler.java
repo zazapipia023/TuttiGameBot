@@ -63,7 +63,7 @@ public class GroupMessageHandler {
 
     private void handleProcessingError(Long chatId, Exception e, Integer userMessageId) {
         try {
-            String errorMessage = "Произошла ошибка при обработке команды. Попробуйте позже.";
+            String errorMessage = "Произошла ошибка при обработке команды\\. Попробуйте позже\\.";
             telegramSender.sendMessage(chatId, errorMessage);
             log.warn("Sent error message to chat {}", chatId);
         } catch (Exception ex) {

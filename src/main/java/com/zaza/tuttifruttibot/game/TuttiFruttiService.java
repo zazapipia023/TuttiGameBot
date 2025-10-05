@@ -2,6 +2,7 @@ package com.zaza.tuttifruttibot.game;
 
 import com.zaza.tuttifruttibot.controllers.PlayerController;
 import com.zaza.tuttifruttibot.models.Player;
+import com.zaza.tuttifruttibot.utils.TelegramEmoji;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -96,7 +97,7 @@ public class TuttiFruttiService {
 
         if (player.getValue() < 100) {
             log.info("Player {} has insufficient ice cream: {} grams", player.getName(), player.getValue());
-            return player.getName() + ", у тебя слишком мало мороженого для продажи.\nКлиент ушел недовольный.";
+            return player.getName() + ", у тебя слишком мало мороженого для продажи\\.\nКлиент ушел недовольный\\.";
         }
 
         log.info("Processing sale for player {} with {} grams available", player.getName(), player.getValue());
@@ -106,13 +107,16 @@ public class TuttiFruttiService {
     public String makeTop() {
         log.info("makeTop started");
         StringBuilder sb = new StringBuilder();
-        sb.append("Лучшие мороженщики Tutti Frutti:\n");
+        sb.append(TelegramEmoji.SHAVED_ICE.getEmojiCode());
+        sb.append("*Лучшие мороженщики Tutti Frutti:*");
+        sb.append(TelegramEmoji.SHAVED_ICE.getEmojiCode());
+        sb.append("\n");
 
         var topPlayers = playerController.makeTopPlayers();
         log.info("Found {} top players", topPlayers.size());
 
         topPlayers.forEach(player -> {
-            sb.append("\n").append(player.getName()).append(": ").append(player.getProfit()).append(" руб.");
+            sb.append("\n*__").append(player.getName()).append("__ —* ").append(player.getProfit()).append(" руб\\.");
             log.debug("Added player {} to top with profit {}", player.getName(), player.getProfit());
         });
 
@@ -180,9 +184,9 @@ public class TuttiFruttiService {
     private String formatResultMessage(String playerName, int value, int newValue) {
         log.debug("Formatting result message for {} - value: {}, newValue: {}", playerName, value, newValue);
         return playerName + ", " +
-                (value < 0 ? "тебе пришлось угостить Ахмеда. " + Math.abs(value) + " гр. мороженого он съел.\n" :
-                        "тебе привезли " + value + " гр. мороженого.\n") +
-                "Теперь у тебя " + newValue + " гр. мороженого на точке.";
+                (value < 0 ? "тебе пришлось угостить Ахмеда\\. " + Math.abs(value) + " гр\\. мороженого он съел\\.\n" :
+                        "тебе привезли " + value + " гр\\. мороженого\\.\n") +
+                "Теперь у тебя " + newValue + " гр\\. мороженого на точке\\.";
     }
 
     private String processSale(Player player) {
@@ -216,7 +220,7 @@ public class TuttiFruttiService {
         log.info("Sale completed successfully - Player: {}, Sold: {}g, Profit: +{} rub, New total: {}g, {} rub",
                 player.getName(), value, profitGained, player.getValue(), player.getProfit());
 
-        return player.getName() + ", ты продал " + value + " гр. мороженого и получил за это " + profitGained + " руб.";
+        return "[" + player.getName() + "](tg://user?id=" + player.getId() + "), ты продал " + value + " гр\\. мороженого и получил за это " + profitGained + " руб\\.";
     }
 
     private String processFailedSale(Player player, int value) {
@@ -231,8 +235,8 @@ public class TuttiFruttiService {
         log.info("Sale failed - Player: {}, Lost: {}g, Penalty: -{} rub, New total: {}g, {} rub",
                 player.getName(), value, loss, player.getValue(), player.getProfit());
 
-        return player.getName() + ", ты засмотрелся на жопу студентки, и у тебя спиздили " + value + " гр. мороженого.\n" +
-                "Тебе пришлось заплатить " + loss + " руб.";
+        return "[" + player.getName() + "](tg://user?id=" + player.getId() + "), ты засмотрелся на жопу студентки, и у тебя спиздили " + value + " гр\\. мороженого\\.\n" +
+                "Тебе пришлось заплатить " + loss + " руб\\.";
     }
 
     public String getPlayerData(Long userId, String name) {
@@ -248,8 +252,8 @@ public class TuttiFruttiService {
         }
 
         StringBuilder sb = new StringBuilder("У тебя:\n")
-                .append("Мороженое: ").append(player.getValue()).append(" гр.\n")
-                .append("Баланс: ").append(player.getProfit()).append(" руб.");
+                .append("Мороженое: ").append(player.getValue()).append(" гр\\.\n")
+                .append("Баланс: ").append(player.getProfit()).append(" руб\\.");
 
         return sb.toString();
     }
