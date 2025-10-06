@@ -120,7 +120,7 @@ public class TuttiShopService {
                 shopsData.append(TelegramEmoji.ICE_CREAM.getEmojiCode())
                         .append(shop.getShopName())
                         .append(TelegramEmoji.ICE_CREAM.getEmojiCode())
-                        .append(" \\| В сейфе: ")
+                        .append("\nВ сейфе: ")
                         .append(shop.getProfit())
                         .append(" руб\\. \\| На складе: ")
                         .append(shop.getValue())

@@ -37,7 +37,7 @@ public class TuttiFruttiService {
 
         if (isOnCooldown(playerId, commandCooldowns, COOLDOWN_HOURS)) {
             log.info("Player {} is on cooldown for makeIceCream", playerName);
-            return formatCooldownMessage(playerName, commandCooldowns.get(playerId), COOLDOWN_HOURS);
+            return formatCooldownMessage(playerName, commandCooldowns.get(playerId));
         }
 
         commandCooldowns.put(playerId, LocalDateTime.now());
@@ -56,23 +56,7 @@ public class TuttiFruttiService {
         playerController.savePlayer(player);
         log.info("Player {} value updated from {} to {}", playerName, player.getValue() - value, newValue);
 
-        return formatResultMessage(playerName, value, newValue);
-    }
-
-    public String getIceCreamValue(Update update) {
-        log.info("getIceCreamValue started");
-        Long playerId = update.getMessage().getFrom().getId();
-        Player player = playerController.findPlayer(playerId);
-
-        if (player == null) {
-            log.warn("Player with ID {} not found for getIceCreamValue", playerId);
-            return "Сначала введи команду /tutti_frutti@idrakG_bot";
-        }
-
-        log.info("Returning value for player {}: {} grams, {} rub profit",
-                player.getName(), player.getValue(), player.getProfit());
-        return "На твоей точке " + player.getValue() + " гр. мороженого.\n" +
-                "Капитал твоей точки: " + player.getProfit() + " руб.";
+        return formatResultMessage(playerName, playerId, value, newValue);
     }
 
     public String sellIceCream(Update update) {
@@ -89,7 +73,7 @@ public class TuttiFruttiService {
 
         if (isOnCooldown(playerId, sellCooldowns, SELL_COOLDOWN_HOURS)) {
             log.info("Player {} is on sell cooldown", player.getName());
-            return formatSellCooldownMessage(player.getName(), sellCooldowns.get(playerId), SELL_COOLDOWN_HOURS);
+            return formatSellCooldownMessage(player.getName(), sellCooldowns.get(playerId));
         }
 
         sellCooldowns.put(playerId, LocalDateTime.now());
@@ -146,17 +130,17 @@ public class TuttiFruttiService {
         return onCooldown;
     }
 
-    private String formatCooldownMessage(String playerName, LocalDateTime lastUsage, int cooldownHours) {
-        long remainingTime = getRemainingTime(lastUsage, cooldownHours);
+    private String formatCooldownMessage(String playerName, LocalDateTime lastUsage) {
+        long remainingTime = getRemainingTime(lastUsage, TuttiFruttiService.COOLDOWN_HOURS);
         log.debug("Formatting cooldown message for {} - {} minutes remaining", playerName, remainingTime);
-        return playerName + ", слишком большая нагрузка поставщиков.\n" +
+        return "Слишком большая нагрузка поставщиков.\n" +
                 "Следующая поставка доступна через " + remainingTime + " мин.";
     }
 
-    private String formatSellCooldownMessage(String playerName, LocalDateTime lastUsage, int cooldownHours) {
-        long remainingTime = getRemainingTime(lastUsage, cooldownHours);
+    private String formatSellCooldownMessage(String playerName, LocalDateTime lastUsage) {
+        long remainingTime = getRemainingTime(lastUsage, TuttiFruttiService.SELL_COOLDOWN_HOURS);
         log.debug("Formatting sell cooldown message for {} - {} minutes remaining", playerName, remainingTime);
-        return playerName + ", сейчас нет потока клиентов.\n" +
+        return "Сейчас нет потока клиентов.\n" +
                 "Попробуй через " + remainingTime + " мин.";
     }
 
@@ -181,9 +165,9 @@ public class TuttiFruttiService {
         return value;
     }
 
-    private String formatResultMessage(String playerName, int value, int newValue) {
+    private String formatResultMessage(String playerName, Long userId, int value, int newValue) {
         log.debug("Formatting result message for {} - value: {}, newValue: {}", playerName, value, newValue);
-        return playerName + ", " +
+        return "[" + playerName + "](tg://user?id=" + userId + "), " +
                 (value < 0 ? "тебе пришлось угостить Ахмеда\\. " + Math.abs(value) + " гр\\. мороженого он съел\\.\n" :
                         "тебе привезли " + value + " гр\\. мороженого\\.\n") +
                 "Теперь у тебя " + newValue + " гр\\. мороженого на точке\\.";
@@ -251,7 +235,11 @@ public class TuttiFruttiService {
             playerController.savePlayer(player);
         }
 
-        StringBuilder sb = new StringBuilder("У тебя:\n")
+        StringBuilder sb = new StringBuilder()
+                .append(TelegramEmoji.ICE_CREAM.getEmojiCode())
+                .append("*Твоя статистика*")
+                .append(TelegramEmoji.ICE_CREAM.getEmojiCode())
+                .append("\n\n")
                 .append("Мороженое: ").append(player.getValue()).append(" гр\\.\n")
                 .append("Баланс: ").append(player.getProfit()).append(" руб\\.");
 
