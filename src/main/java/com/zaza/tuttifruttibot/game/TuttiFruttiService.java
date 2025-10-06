@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -52,11 +53,21 @@ public class TuttiFruttiService {
         int newValue = Math.max(player.getValue() + value, 0);
         log.debug("New value after calculation: {}", newValue);
 
-        player.setValue(newValue);
-        playerController.savePlayer(player);
-        log.info("Player {} value updated from {} to {}", playerName, player.getValue() - value, newValue);
-
-        return formatResultMessage(playerName, playerId, value, newValue);
+        if (value < 0) {
+            List<Player> players = playerController.findAllPlayers();
+            players.remove(player);
+            Player stealPlayer = players.get(ThreadLocalRandom.current().nextInt(players.size() - 1));
+            stealPlayer.setValue(stealPlayer.getValue() + Math.abs(value));
+            player.setValue(newValue);
+            playerController.savePlayer(player);
+            log.info("Player {} value updated from {} to {}", playerName, player.getValue() - value, newValue);
+            return formatStealResultMessage(playerName, playerId, value, newValue, stealPlayer);
+        } else {
+            player.setValue(newValue);
+            playerController.savePlayer(player);
+            log.info("Player {} value updated from {} to {}", playerName, player.getValue() - value, newValue);
+            return formatResultMessage(playerName, playerId, value, newValue);
+        }
     }
 
     public String sellIceCream(Update update) {
@@ -96,7 +107,7 @@ public class TuttiFruttiService {
         sb.append(TelegramEmoji.SHAVED_ICE.getEmojiCode());
         sb.append("\n");
 
-        var topPlayers = playerController.makeTopPlayers();
+        var topPlayers = playerController.makeTopPlayers().subList(0, 10);
         log.info("Found {} top players", topPlayers.size());
 
         topPlayers.forEach(player -> {
@@ -169,6 +180,15 @@ public class TuttiFruttiService {
         log.debug("Formatting result message for {} - value: {}, newValue: {}", playerName, value, newValue);
         return "[" + playerName + "](tg://user?id=" + userId + "), " +
                 (value < 0 ? "тебе пришлось угостить Ахмеда\\. " + Math.abs(value) + " гр\\. мороженого он съел\\.\n" :
+                        "тебе привезли " + value + " гр\\. мороженого\\.\n") +
+                "Теперь у тебя " + newValue + " гр\\. мороженого на точке\\.";
+    }
+
+    private String formatStealResultMessage(String playerName, Long userId, int value, int newValue, Player stealPlayer) {
+        log.debug("Formatting result message for {} - value: {}, newValue: {}", playerName, value, newValue);
+        return "[" + playerName + "](tg://user?id=" + userId + "), " +
+                (value < 0 ? "тебе пришлось угостить [" + stealPlayer.getName() + "]" + "(tg://user?id=" + stealPlayer.getId() + ")\\. "
+                        + Math.abs(value) + " гр\\. мороженого он забрал себе\\.\n" :
                         "тебе привезли " + value + " гр\\. мороженого\\.\n") +
                 "Теперь у тебя " + newValue + " гр\\. мороженого на точке\\.";
     }
