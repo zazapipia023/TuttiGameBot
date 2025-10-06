@@ -70,4 +70,7 @@ public class PlayerService {
         }
     }
 
+    public List<Player> findAll() {
+        return  playerRepository.findAll();
+    }
 }

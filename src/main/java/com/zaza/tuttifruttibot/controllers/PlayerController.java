@@ -30,6 +30,11 @@ public class PlayerController {
         return player;
     }
 
+    public List<Player> findAllPlayers() {
+        log.debug("Finding all players");
+        return playerService.findAll();
+    }
+
     public List<Player> makeTopPlayers() {
         log.info("Creating top players list");
         List<Player> topPlayers = playerService.findAllByDescending();
