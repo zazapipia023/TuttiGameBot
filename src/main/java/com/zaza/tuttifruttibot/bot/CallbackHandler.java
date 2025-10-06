@@ -8,6 +8,7 @@ import com.zaza.tuttifruttibot.upgrades.HardwareEquipment;
 import com.zaza.tuttifruttibot.upgrades.IceCreamTypes;
 import com.zaza.tuttifruttibot.upgrades.Toppings;
 import com.zaza.tuttifruttibot.utils.KeyboardUtils;
+import com.zaza.tuttifruttibot.utils.TelegramEmoji;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -63,7 +64,7 @@ public class CallbackHandler {
                 telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createBackGameKeyboard());
             }
             case "create_shop" -> {
-                String text = "Чтобы открыть новую точку, нужно 500.000 рублей.";
+                String text = "Чтобы открыть новую точку, нужно 500\\.000 рублей\\.";
                 telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createProcessShopKeyboard(callbackData));
             }
             case "upgrade_shop" -> {
@@ -90,22 +91,25 @@ public class CallbackHandler {
                 boolean isShopOpened = tuttiShopService.processShopBuying(userId);
                 String text;
                 if (isShopOpened) {
-                    text = "Вы успешно открыли новую точку, поздравляем!";
+                    text = "Вы успешно открыли новую точку, поздравляем\\!";
                 } else {
-                    text = "У вас недостаточно денег для открытия точки.";
+                    text = "У вас недостаточно денег для открытия точки\\.";
                 }
                 telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createEmptyKeyboardMarkup());
             }
             case "toppings" -> {
-                String text = "Стоимость топпинга: 15.000 рублей.\n\nВыбери, какой хочешь купить на точку.";
+                String text = TelegramEmoji.BOWL_SPOON.getEmojiCode() +
+                "*Стоимость топпинга: 15\\.000 рублей\\.*" + TelegramEmoji.BOWL_SPOON.getEmojiCode() + "\n\nВыбери, какой хочешь купить на точку\\.";
                 telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createProcessShopKeyboard(callbackData));
             }
             case "ice_cream" -> {
-                String text = "Стоимость нового вкуса: 65.000 рублей.\n\nВыбери, какой хочешь купить на точку.";
+                String text = TelegramEmoji.ICE_CREAM_WAFFLE.getEmojiCode() +
+                        "*Стоимость нового вкуса: 65\\.000 рублей\\.*" + TelegramEmoji.ICE_CREAM_WAFFLE.getEmojiCode() + "\n\nВыбери, какой хочешь купить на точку\\.";
                 telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createProcessShopKeyboard(callbackData));
             }
             case "hardware" -> {
-                String text = "Стоимость фурнитуры: 150.000 рублей.\n\nВыбери, что хочешь поставить на точку.";
+                String text = TelegramEmoji.CHAIR.getEmojiCode() +
+                        "*Стоимость фурнитуры: 150\\.000 рублей\\.*" + TelegramEmoji.CHAIR.getEmojiCode() + "\n\nВыбери, что хочешь поставить на точку\\.";
                 telegramSender.editMessageWithMarkup(chatId, messageId, text, KeyboardUtils.createProcessShopKeyboard(callbackData));
             }
             case "take_profit" -> {

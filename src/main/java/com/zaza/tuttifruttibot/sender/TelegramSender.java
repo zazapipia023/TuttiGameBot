@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.DefaultAbsSender;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.methods.ParseMode;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.DeleteMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageText;
@@ -45,6 +46,7 @@ public class TelegramSender extends DefaultAbsSender {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setText(message);
+        sendMessage.setParseMode(ParseMode.MARKDOWNV2);
         log.info("Sending message to user, chatId: {}", chatId);
         try {
             execute(sendMessage);
@@ -57,6 +59,7 @@ public class TelegramSender extends DefaultAbsSender {
         SendMessage sendMessage = new SendMessage();
         sendMessage.setChatId(chatId);
         sendMessage.setText(message);
+        sendMessage.setParseMode(ParseMode.MARKDOWNV2);
 
         log.info("Sending message with delete mark, chatId: {}", chatId);
         try {
@@ -73,6 +76,7 @@ public class TelegramSender extends DefaultAbsSender {
         sendMessage.setChatId(chatId);
         sendMessage.setText(message);
         sendMessage.setReplyMarkup(markup);
+        sendMessage.setParseMode(ParseMode.MARKDOWNV2);
         log.info("Sending message to user with markup: {}", userId);
         try {
             Message sentMessage = execute(sendMessage);
@@ -89,6 +93,7 @@ public class TelegramSender extends DefaultAbsSender {
         editMessage.setMessageId(messageId);
         editMessage.setText(text);
         editMessage.setReplyMarkup(markup);
+        editMessage.setParseMode(ParseMode.MARKDOWNV2);
 
         log.info("Editing message with markup, messageId: {}, text: {}", messageId, text);
         try {
