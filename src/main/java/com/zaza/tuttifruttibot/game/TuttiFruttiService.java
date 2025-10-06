@@ -107,7 +107,11 @@ public class TuttiFruttiService {
         sb.append(TelegramEmoji.SHAVED_ICE.getEmojiCode());
         sb.append("\n");
 
-        var topPlayers = playerController.makeTopPlayers().subList(0, 10);
+        var topPlayers = playerController.makeTopPlayers();
+        if (topPlayers.size() > 10) {
+            topPlayers.subList(0, 10);
+        }
+
         log.info("Found {} top players", topPlayers.size());
 
         topPlayers.forEach(player -> {
