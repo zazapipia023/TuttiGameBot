@@ -55,12 +55,16 @@ public class TuttiFruttiService {
 
         if (value < 0) {
             List<Player> players = playerController.findAllPlayers();
-            players.remove(player);
+            boolean isRemoved = players.remove(player);
+            log.info("Is Removed player: {}", isRemoved);
             Player stealPlayer = players.get(ThreadLocalRandom.current().nextInt(players.size() - 1));
+            log.info("Steal player name: {}", stealPlayer.getName());
             stealPlayer.setValue(stealPlayer.getValue() + Math.abs(value));
             player.setValue(newValue);
             playerController.savePlayer(player);
+            playerController.savePlayer(stealPlayer);
             log.info("Player {} value updated from {} to {}", playerName, player.getValue() - value, newValue);
+            log.info("Steal Player {} value updated from {} to {}", stealPlayer.getName(), stealPlayer.getValue() - Math.abs(value), stealPlayer.getValue());
             return formatStealResultMessage(playerName, playerId, value, newValue, stealPlayer);
         } else {
             player.setValue(newValue);
@@ -109,7 +113,7 @@ public class TuttiFruttiService {
 
         var topPlayers = playerController.makeTopPlayers();
         if (topPlayers.size() > 10) {
-            topPlayers.subList(0, 10);
+            topPlayers = topPlayers.subList(0, 10);
         }
 
         log.info("Found {} top players", topPlayers.size());
@@ -148,15 +152,15 @@ public class TuttiFruttiService {
     private String formatCooldownMessage(String playerName, LocalDateTime lastUsage) {
         long remainingTime = getRemainingTime(lastUsage, TuttiFruttiService.COOLDOWN_HOURS);
         log.debug("Formatting cooldown message for {} - {} minutes remaining", playerName, remainingTime);
-        return "Слишком большая нагрузка поставщиков.\n" +
-                "Следующая поставка доступна через " + remainingTime + " мин.";
+        return "Слишком большая нагрузка поставщиков\\.\n" +
+                "Следующая поставка доступна через " + remainingTime + " мин\\.";
     }
 
     private String formatSellCooldownMessage(String playerName, LocalDateTime lastUsage) {
         long remainingTime = getRemainingTime(lastUsage, TuttiFruttiService.SELL_COOLDOWN_HOURS);
         log.debug("Formatting sell cooldown message for {} - {} minutes remaining", playerName, remainingTime);
-        return "Сейчас нет потока клиентов.\n" +
-                "Попробуй через " + remainingTime + " мин.";
+        return "Сейчас нет потока клиентов\\.\n" +
+                "Попробуй через " + remainingTime + " мин\\.";
     }
 
     private long getRemainingTime(LocalDateTime lastUsage, int cooldownHours) {

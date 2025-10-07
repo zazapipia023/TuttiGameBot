@@ -5,10 +5,12 @@ import lombok.*;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "player")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class Player {
@@ -32,4 +34,15 @@ public class Player {
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<IceShop> shops = new ArrayList<>();
 
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        Player player = (Player) o;
+        return Objects.equals(id, player.id) && Objects.equals(action, player.action) && Objects.equals(name, player.name) && Objects.equals(value, player.value) && Objects.equals(profit, player.profit);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, action, name, value, profit);
+    }
 }
