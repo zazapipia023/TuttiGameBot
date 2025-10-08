@@ -11,7 +11,6 @@ public class MarkdownEscaper {
                 .replace("-", "\\-")
                 .replace("−", "\\−")
                 .replace("–", "\\–")
-                .replace("—", "\\—")
                 .replace("|", "\\|")
                 .replace("{", "\\{")
                 .replace("}", "\\}")
