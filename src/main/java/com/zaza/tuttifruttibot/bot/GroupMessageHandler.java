@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Update;
 
+import static com.zaza.tuttifruttibot.utils.MarkdownEscaper.escape;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -26,29 +28,29 @@ public class GroupMessageHandler {
 
         try {
             switch (messageText) {
-                case "/tutti_frutti@idrakG_bot", "/tutti_frutti@colizeum_csa_bot" -> {
-                    log.info("Processing /tutti_frutti command from chat {}", chatId);
-                    String response = tuttiFruttiService.getPlayerData(update.getMessage().getFrom().getId(), update.getMessage().getFrom().getFirstName());
-                    telegramSender.sendMessage(chatId, response, update.getMessage().getFrom().getId(), KeyboardUtils.createGameKeyboard());
-                    log.debug("Successfully processed /tutti_frutti command");
+                case "/frutti@tfrutti_bot", "/tutti_frutti@colizeum_csa_bot" -> {
+                    log.info("Processing /frutti command from chat {}", chatId);
+                    String response = tuttiFruttiService.getPlayerData(update.getMessage().getFrom().getId(), update.getMessage().getChatId(), update.getMessage().getFrom().getFirstName());
+                    telegramSender.sendMessage(chatId, escape(response), update.getMessage().getFrom().getId(), KeyboardUtils.createGameKeyboard());
+                    log.debug("Successfully processed /frutti command");
                 }
 
-                case "/tutti_frutti_top@idrakG_bot", "/tutti_frutti_top@colizeum_csa_bot" -> {
-                    log.info("Processing /tutti_frutti_top command from chat {}", chatId);
-                    String response = tuttiFruttiService.makeTop();
-                    telegramSender.sendMessage(chatId, response);
-                    log.debug("Successfully processed /tutti_frutti_top command");
+                case "/frutti_top@tfrutti_bot", "/tutti_frutti_top@colizeum_csa_bot" -> {
+                    log.info("Processing /frutti_top command from chat {}", chatId);
+                    String response = tuttiFruttiService.makeTop(chatId);
+                    telegramSender.sendMessage(chatId, escape(response));
+                    log.debug("Successfully processed /frutti_top command");
                 }
 
-                case "/tutti_frutti_shop@idrakG_bot", "/tutti_frutti_shop@colizeum_csa_bot" -> {
-                    log.info("Processing /tutti_frutti_shop command from chat {}", chatId);
-                    if (botContext.getData(update.getMessage().getFrom().getId()) != null) {
-                        telegramSender.deleteMessage(chatId, botContext.getData(update.getMessage().getFrom().getId()));
+                case "/frutti_shop@tfrutti_bot", "/tutti_frutti_shop@colizeum_csa_bot" -> {
+                    log.info("Processing /frutti_shop command from chat {}", chatId);
+                    if (botContext.getData(update.getMessage().getChatId(), update.getMessage().getFrom().getId()) != null) {
+                        telegramSender.deleteMessage(chatId, botContext.getData(update.getMessage().getChatId(), update.getMessage().getFrom().getId()));
                     }
 
                     String response = tuttiShopService.getShopsData(update);
-                    telegramSender.sendMessage(chatId, response, update.getMessage().getFrom().getId(), KeyboardUtils.createShopKeyboard());
-                    log.debug("Successfully processed /tutti_frutti_shop command");
+                    telegramSender.sendMessage(chatId, escape(response), update.getMessage().getFrom().getId(), KeyboardUtils.createShopKeyboard());
+                    log.debug("Successfully processed /frutti_shop command");
                 }
 
                 default -> {
@@ -63,8 +65,8 @@ public class GroupMessageHandler {
 
     private void handleProcessingError(Long chatId, Exception e, Integer userMessageId) {
         try {
-            String errorMessage = "Произошла ошибка при обработке команды\\. Попробуйте позже\\.";
-            telegramSender.sendMessage(chatId, errorMessage);
+            String errorMessage = "Произошла ошибка при обработке команды. Попробуйте позже.";
+            telegramSender.sendMessage(chatId, escape(errorMessage));
             log.warn("Sent error message to chat {}", chatId);
         } catch (Exception ex) {
             log.error("Failed to send error message to chat {}", chatId, ex);

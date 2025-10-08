@@ -17,7 +17,14 @@ public class Player {
 
     @Id
     @Column(name = "id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(name = "user_id")
+    private Long userId;
+
+    @Column(name = "chat_id")
+    private Long chatId;
 
     @Column(name = "action")
     private String action;
@@ -33,6 +40,16 @@ public class Player {
 
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<IceShop> shops = new ArrayList<>();
+
+    public Player(Long userId, Long chatId, String action, String name, Integer value, Integer profit, List<IceShop> shops) {
+        this.userId = userId;
+        this.chatId = chatId;
+        this.action = action;
+        this.name = name;
+        this.value = value;
+        this.profit = profit;
+        this.shops = shops;
+    }
 
     @Override
     public boolean equals(Object o) {

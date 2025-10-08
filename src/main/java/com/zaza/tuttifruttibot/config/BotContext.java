@@ -10,18 +10,27 @@ import java.util.Map;
 @Component
 public class BotContext {
 
-    private Map<Long, Integer> inlineConnection;
+    private Map<Long, Map<Long, Integer>> inlineConnection;
 
     public BotContext() {
         inlineConnection = new HashMap<>();
     }
 
-    public void saveData(Long userId, Integer messageId) {
-        inlineConnection.put(userId, messageId);
+    public void saveData(Long chatId, Long userId, Integer messageId) {
+        Map<Long, Integer> userMessageMap = inlineConnection.get(chatId);
+        if (userMessageMap == null) {
+            userMessageMap = new HashMap<>();
+            inlineConnection.put(chatId, userMessageMap);
+        }
+        userMessageMap.put(userId, messageId);
     }
 
-    public Integer getData(Long userId) {
-        return inlineConnection.get(userId);
+    public Integer getData(Long chatId, Long userId) {
+        Map<Long, Integer> userMessageMap = inlineConnection.get(chatId);
+        if (userMessageMap == null) {
+            return null;
+        }
+        return userMessageMap.get(userId);
     }
 
 }

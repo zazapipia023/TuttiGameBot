@@ -81,7 +81,7 @@ public class TelegramSender extends DefaultAbsSender {
         try {
             Message sentMessage = execute(sendMessage);
             Integer messageId = sentMessage.getMessageId();
-            botContext.saveData(userId, messageId);
+            botContext.saveData(chatId, userId, messageId);
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         }

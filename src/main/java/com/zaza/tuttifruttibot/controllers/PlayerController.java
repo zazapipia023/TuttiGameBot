@@ -17,9 +17,9 @@ public class PlayerController {
     private final PlayerService playerService;
     private final IceShopController iceShopController;
 
-    public Player findPlayer(Long id) {
+    public Player findPlayer(Long id, Long chatId) {
         log.debug("Finding player by ID: {}", id);
-        Player player = playerService.findOne(id);
+        Player player = playerService.findOne(id, chatId);
 
         if (player == null) {
             log.info("Player with ID {} not found", id);
@@ -35,9 +35,9 @@ public class PlayerController {
         return playerService.findAll();
     }
 
-    public List<Player> makeTopPlayers() {
+    public List<Player> makeTopPlayers(Long chatId) {
         log.info("Creating top players list");
-        List<Player> topPlayers = playerService.findAllByDescending();
+        List<Player> topPlayers = playerService.findAllByDescending(chatId);
 
         log.info("Top players list generated with {} players", topPlayers.size());
         if (topPlayers.isEmpty()) {
