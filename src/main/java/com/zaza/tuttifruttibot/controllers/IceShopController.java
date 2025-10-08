@@ -4,6 +4,7 @@ import com.github.javafaker.Faker;
 import com.zaza.tuttifruttibot.models.IceShop;
 import com.zaza.tuttifruttibot.models.Player;
 import com.zaza.tuttifruttibot.services.IceShopService;
+import com.zaza.tuttifruttibot.utils.MarkdownEscaper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RestController;

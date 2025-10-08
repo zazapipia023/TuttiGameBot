@@ -1,6 +1,7 @@
 package com.zaza.tuttifruttibot.services;
 
 import com.zaza.tuttifruttibot.models.Player;
+import com.zaza.tuttifruttibot.models.PlayerComparator;
 import com.zaza.tuttifruttibot.repositories.PlayerRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,9 +19,9 @@ public class PlayerService {
 
     private final PlayerRepository playerRepository;
 
-    public Player findOne(Long id) {
+    public Player findOne(Long id, Long chatId) {
         log.debug("Searching for player with ID: {}", id);
-        Optional<Player> foundPlayer = playerRepository.findById(id);
+        Optional<Player> foundPlayer = playerRepository.findByUserIdAndChatId(id, chatId);
 
         if (foundPlayer.isPresent()) {
             Player player = foundPlayer.get();
@@ -33,9 +34,10 @@ public class PlayerService {
         }
     }
 
-    public List<Player> findAllByDescending() {
+    public List<Player> findAllByDescending(Long chatId) {
         log.info("Retrieving all players ordered by profit descending");
-        List<Player> players = playerRepository.findAllByOrderByProfitDesc();
+        List<Player> players = playerRepository.findAllByChatId(chatId);
+        players.sort(new PlayerComparator());
 
         log.info("Found {} players in database", players.size());
         if (!players.isEmpty()) {

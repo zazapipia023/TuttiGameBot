@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,8 +23,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public class TuttiFruttiService {
 
     private final PlayerController playerController;
-    private final Map<Long, LocalDateTime> commandCooldowns = new ConcurrentHashMap<>();
-    private final Map<Long, LocalDateTime> sellCooldowns = new ConcurrentHashMap<>();
+    private final Map<Long, Map<Long, LocalDateTime>> commandCooldowns = new ConcurrentHashMap<>();
+    private final Map<Long, Map<Long, LocalDateTime>> sellCooldowns = new ConcurrentHashMap<>();
 
     private static final int COOLDOWN_HOURS = 6;
     private static final int SELL_COOLDOWN_HOURS = 3;
@@ -33,18 +34,20 @@ public class TuttiFruttiService {
     public String makeIceCream(Update update) {
         log.info("makeIceCream started");
         Long playerId = update.getMessage() == null ? update.getCallbackQuery().getFrom().getId() : update.getMessage().getFrom().getId();
+        Long chatId = update.getMessage() == null ? update.getCallbackQuery().getMessage().getChatId() : update.getMessage().getChatId();
         String playerName = update.getMessage() == null ? update.getCallbackQuery().getFrom().getFirstName() : update.getMessage().getFrom().getFirstName();
         log.debug("Player info - ID: {}, Name: {}", playerId, playerName);
 
-        if (isOnCooldown(playerId, commandCooldowns, COOLDOWN_HOURS)) {
+        if (isOnCooldown(chatId, playerId, commandCooldowns, COOLDOWN_HOURS)) {
             log.info("Player {} is on cooldown for makeIceCream", playerName);
-            return formatCooldownMessage(playerName, commandCooldowns.get(playerId));
+            return formatCooldownMessage(playerName, commandCooldowns.get(chatId).get(playerId));
         }
-
-        commandCooldowns.put(playerId, LocalDateTime.now());
+        Map<Long, LocalDateTime> chatCooldowns = commandCooldowns.getOrDefault(chatId, new HashMap<>());
+        chatCooldowns.put(playerId, LocalDateTime.now());
+        commandCooldowns.put(chatId, chatCooldowns);
         log.debug("Cooldown set for player {}", playerId);
 
-        Player player = getOrCreatePlayer(playerId, playerName);
+        Player player = getOrCreatePlayer(playerId, chatId, playerName);
         log.debug("Player data: {}", player);
 
         int value = generateRandomValue(-1500, 8000, POSITIVE_PROBABILITY);
@@ -77,33 +80,36 @@ public class TuttiFruttiService {
     public String sellIceCream(Update update) {
         log.info("sellIceCream started");
         Long playerId = update.getMessage() == null ? update.getCallbackQuery().getFrom().getId() : update.getMessage().getFrom().getId();
-        Player player = playerController.findPlayer(playerId);
+        Long chatId = update.getMessage() == null ? update.getCallbackQuery().getMessage().getChatId() : update.getMessage().getChatId();
+        Player player = playerController.findPlayer(playerId, chatId);
 
         if (player == null) {
             log.warn("Player with ID {} not found for sellIceCream", playerId);
-            return "Сначала введи команду /tutti_frutti@idrakG_bot";
+            return "Сначала нужно произвести поставку";
         }
 
         log.debug("Found player: {} with value: {}", player.getName(), player.getValue());
 
-        if (isOnCooldown(playerId, sellCooldowns, SELL_COOLDOWN_HOURS)) {
+        if (isOnCooldown(chatId, playerId, sellCooldowns, SELL_COOLDOWN_HOURS)) {
             log.info("Player {} is on sell cooldown", player.getName());
-            return formatSellCooldownMessage(player.getName(), sellCooldowns.get(playerId));
+            return formatSellCooldownMessage(player.getName(), sellCooldowns.get(chatId).get(playerId));
         }
 
-        sellCooldowns.put(playerId, LocalDateTime.now());
+        Map<Long, LocalDateTime> chatCooldowns = sellCooldowns.getOrDefault(chatId, new HashMap<>());
+        chatCooldowns.put(playerId, LocalDateTime.now());
+        sellCooldowns.put(chatId, chatCooldowns);
         log.debug("Sell cooldown set for player {}", playerId);
 
         if (player.getValue() < 100) {
             log.info("Player {} has insufficient ice cream: {} grams", player.getName(), player.getValue());
-            return player.getName() + ", у тебя слишком мало мороженого для продажи\\.\nКлиент ушел недовольный\\.";
+            return player.getName() + ", у тебя слишком мало мороженого для продажи.\nКлиент ушел недовольный.";
         }
 
         log.info("Processing sale for player {} with {} grams available", player.getName(), player.getValue());
         return processSale(player);
     }
 
-    public String makeTop() {
+    public String makeTop(Long chatId) {
         log.info("makeTop started");
         StringBuilder sb = new StringBuilder();
         sb.append(TelegramEmoji.SHAVED_ICE.getEmojiCode());
@@ -111,7 +117,7 @@ public class TuttiFruttiService {
         sb.append(TelegramEmoji.SHAVED_ICE.getEmojiCode());
         sb.append("\n");
 
-        var topPlayers = playerController.makeTopPlayers();
+        var topPlayers = playerController.makeTopPlayers(chatId);
         if (topPlayers.size() > 10) {
             topPlayers = topPlayers.subList(0, 10);
         }
@@ -119,7 +125,7 @@ public class TuttiFruttiService {
         log.info("Found {} top players", topPlayers.size());
 
         topPlayers.forEach(player -> {
-            sb.append("\n*__").append(player.getName()).append("__ —* ").append(player.getProfit()).append(" руб\\.");
+            sb.append("\n*__").append(player.getName()).append("__ —* ").append(player.getProfit()).append(" руб.");
             log.debug("Added player {} to top with profit {}", player.getName(), player.getProfit());
         });
 
@@ -127,13 +133,13 @@ public class TuttiFruttiService {
         return sb.toString();
     }
 
-    private Player getOrCreatePlayer(Long playerId, String playerName) {
+    private Player getOrCreatePlayer(Long playerId, Long chatId, String playerName) {
         log.debug("getOrCreatePlayer for ID: {}", playerId);
-        Player player = playerController.findPlayer(playerId);
+        Player player = playerController.findPlayer(playerId, chatId);
 
         if (player == null) {
             log.info("Creating new player with ID: {}, Name: {}", playerId, playerName);
-            player = new Player(playerId, "none", playerName, 0, 0, Collections.emptyList());
+            player = new Player(playerId, chatId, "none", playerName, 0, 0, Collections.emptyList());
         } else {
             log.debug("Existing player found: {}", player);
         }
@@ -141,26 +147,26 @@ public class TuttiFruttiService {
         return player;
     }
 
-    private boolean isOnCooldown(Long playerId, Map<Long, LocalDateTime> cooldownMap, int hours) {
-        boolean onCooldown = cooldownMap.containsKey(playerId) &&
-                LocalDateTime.now().isBefore(cooldownMap.get(playerId).plusHours(hours));
+    private boolean isOnCooldown(Long chatId, Long userId, Map<Long, Map<Long, LocalDateTime>> cooldownMap, int hours) {
+        boolean onCooldown = cooldownMap.containsKey(chatId) && cooldownMap.get(chatId).containsKey(userId)
+                && LocalDateTime.now().isBefore(cooldownMap.get(chatId).get(userId).plusHours(hours));
 
-        log.debug("Cooldown check for player {}: {}", playerId, onCooldown ? "ON cooldown" : "NOT on cooldown");
+        log.debug("Cooldown check for player {}: {}", chatId, onCooldown ? "ON cooldown" : "NOT on cooldown");
         return onCooldown;
     }
 
     private String formatCooldownMessage(String playerName, LocalDateTime lastUsage) {
         long remainingTime = getRemainingTime(lastUsage, TuttiFruttiService.COOLDOWN_HOURS);
         log.debug("Formatting cooldown message for {} - {} minutes remaining", playerName, remainingTime);
-        return "Слишком большая нагрузка поставщиков\\.\n" +
-                "Следующая поставка доступна через " + remainingTime + " мин\\.";
+        return "Слишком большая нагрузка поставщиков.\n" +
+                "Следующая поставка доступна через " + remainingTime + " мин.";
     }
 
     private String formatSellCooldownMessage(String playerName, LocalDateTime lastUsage) {
         long remainingTime = getRemainingTime(lastUsage, TuttiFruttiService.SELL_COOLDOWN_HOURS);
         log.debug("Formatting sell cooldown message for {} - {} minutes remaining", playerName, remainingTime);
-        return "Сейчас нет потока клиентов\\.\n" +
-                "Попробуй через " + remainingTime + " мин\\.";
+        return "Сейчас нет потока клиентов.\n" +
+                "Попробуй через " + remainingTime + " мин.";
     }
 
     private long getRemainingTime(LocalDateTime lastUsage, int cooldownHours) {
@@ -187,18 +193,17 @@ public class TuttiFruttiService {
     private String formatResultMessage(String playerName, Long userId, int value, int newValue) {
         log.debug("Formatting result message for {} - value: {}, newValue: {}", playerName, value, newValue);
         return "[" + playerName + "](tg://user?id=" + userId + "), " +
-                (value < 0 ? "тебе пришлось угостить Ахмеда\\. " + Math.abs(value) + " гр\\. мороженого он съел\\.\n" :
-                        "тебе привезли " + value + " гр\\. мороженого\\.\n") +
-                "Теперь у тебя " + newValue + " гр\\. мороженого на точке\\.";
+                        "тебе привезли " + value + " гр. мороженого.\n" +
+                "Теперь у тебя " + newValue + " гр. мороженого на точке.";
     }
 
     private String formatStealResultMessage(String playerName, Long userId, int value, int newValue, Player stealPlayer) {
         log.debug("Formatting result message for {} - value: {}, newValue: {}", playerName, value, newValue);
         return "[" + playerName + "](tg://user?id=" + userId + "), " +
-                (value < 0 ? "тебе пришлось угостить [" + stealPlayer.getName() + "]" + "(tg://user?id=" + stealPlayer.getId() + ")\\. "
-                        + Math.abs(value) + " гр\\. мороженого он забрал себе\\.\n" :
-                        "тебе привезли " + value + " гр\\. мороженого\\.\n") +
-                "Теперь у тебя " + newValue + " гр\\. мороженого на точке\\.";
+                (value < 0 ? "тебе пришлось угостить [" + stealPlayer.getName() + "]" + "(tg://user?id=" + stealPlayer.getUserId() + "). "
+                        + Math.abs(value) + " гр. мороженого он забрал себе.\n" :
+                        "тебе привезли " + value + " гр. мороженого.\n") +
+                "Теперь у тебя " + newValue + " гр. мороженого на точке.";
     }
 
     private String processSale(Player player) {
@@ -232,7 +237,7 @@ public class TuttiFruttiService {
         log.info("Sale completed successfully - Player: {}, Sold: {}g, Profit: +{} rub, New total: {}g, {} rub",
                 player.getName(), value, profitGained, player.getValue(), player.getProfit());
 
-        return "[" + player.getName() + "](tg://user?id=" + player.getId() + "), ты продал " + value + " гр\\. мороженого и получил за это " + profitGained + " руб\\.";
+        return "[" + player.getName() + "](tg://user?id=" + player.getUserId() + "), ты продал " + value + " гр. мороженого и получил за это " + profitGained + " руб.";
     }
 
     private String processFailedSale(Player player, int value) {
@@ -247,12 +252,12 @@ public class TuttiFruttiService {
         log.info("Sale failed - Player: {}, Lost: {}g, Penalty: -{} rub, New total: {}g, {} rub",
                 player.getName(), value, loss, player.getValue(), player.getProfit());
 
-        return "[" + player.getName() + "](tg://user?id=" + player.getId() + "), ты засмотрелся на жопу студентки, и у тебя спиздили " + value + " гр\\. мороженого\\.\n" +
-                "Тебе пришлось заплатить " + loss + " руб\\.";
+        return "[" + player.getName() + "](tg://user?id=" + player.getId() + "), ты засмотрелся на жопу студентки, и у тебя спиздили " + value + " гр. мороженого.\n" +
+                "Тебе пришлось заплатить " + loss + " руб.";
     }
 
-    public String getPlayerData(Long userId, String name) {
-        Player player = playerController.findPlayer(userId);
+    public String getPlayerData(Long userId, Long chatId, String name) {
+        Player player = playerController.findPlayer(userId, chatId);
         if (player == null) {
             player = new Player();
             player.setId(userId);
@@ -268,8 +273,8 @@ public class TuttiFruttiService {
                 .append("*Твоя статистика*")
                 .append(TelegramEmoji.ICE_CREAM.getEmojiCode())
                 .append("\n\n")
-                .append("Мороженое: ").append(player.getValue()).append(" гр\\.\n")
-                .append("Баланс: ").append(player.getProfit()).append(" руб\\.");
+                .append("Мороженое: ").append(player.getValue()).append(" гр.\n")
+                .append("Баланс: ").append(player.getProfit()).append(" руб.");
 
         return sb.toString();
     }

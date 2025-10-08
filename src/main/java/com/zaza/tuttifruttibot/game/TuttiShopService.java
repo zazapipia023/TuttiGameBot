@@ -22,6 +22,8 @@ import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.zaza.tuttifruttibot.utils.MarkdownEscaper.escape;
+
 @Slf4j
 @Component
 @RequiredArgsConstructor
@@ -44,8 +46,8 @@ public class TuttiShopService {
     private static final String ALL_SHOPS_HAVE_UPGRADE_MESSAGE = "На всех твоих точках есть этот ";
     private static final String ALREADY_HAVE_UPGRADE_MESSAGE = "У тебя уже есть данный ";
 
-    public boolean processShopBuying(Long userId) {
-        Player player = playerController.findPlayer(userId);
+    public boolean processShopBuying(Long userId, Long chatId) {
+        Player player = playerController.findPlayer(userId, chatId);
         if (player.getProfit() < OPEN_SHOP_COST) {
             return false;
         }
@@ -104,7 +106,8 @@ public class TuttiShopService {
 
     public String getShopsData(Update update) {
         Long userId = update.getMessage().getFrom().getId();
-        Player player = playerController.findPlayer(userId);
+        Long chatId = update.getMessage().getChatId();
+        Player player = playerController.findPlayer(userId, chatId);
         List<IceShop> shops = iceShopController.findPlayersShops(player);
 
         if (shops.isEmpty()) {
@@ -122,9 +125,9 @@ public class TuttiShopService {
                         .append(TelegramEmoji.ICE_CREAM.getEmojiCode())
                         .append("\nВ сейфе: ")
                         .append(shop.getProfit())
-                        .append(" руб\\. \\| На складе: ")
+                        .append(" руб. | На складе: ")
                         .append(shop.getValue())
-                        .append(" гр\\.\n")
+                        .append(" гр.\n")
         );
 
         return shopsData.toString();
@@ -143,7 +146,7 @@ public class TuttiShopService {
     }
 
     private void processUpgrade(String upgrade, Long chatId, Long userId, String callbackId, UpgradeType upgradeType) {
-        Player player = playerController.findPlayer(userId);
+        Player player = playerController.findPlayer(userId, chatId);
         List<IceShop> iceShops = iceShopController.findPlayersShops(player);
 
         Optional<IceShop> availableShop = findShopWithoutUpgrade(iceShops, upgrade);
@@ -165,7 +168,7 @@ public class TuttiShopService {
         iceShopController.saveIceShop(iceShop);
 
         String successMessage = createSuccessMessage(upgrade, upgradeType);
-        telegramSender.sendMessage(chatId, successMessage);
+        telegramSender.sendMessage(chatId, escape(successMessage));
     }
 
     private Optional<IceShop> findShopWithoutUpgrade(List<IceShop> iceShops, String upgrade) {
@@ -244,7 +247,7 @@ public class TuttiShopService {
     }
 
     public void processEncashment(Long chatId, Integer messageId, Long userId) {
-        Player player = playerController.findPlayer(userId);
+        Player player = playerController.findPlayer(userId, chatId);
         List<IceShop> iceShops = iceShopController.findPlayersShops(player);
 
         if (iceShops.isEmpty()) {
@@ -264,17 +267,16 @@ public class TuttiShopService {
         iceShopController.saveAllShops(iceShops);
 
         String text = encashmentMoney.get() == 0
-                ? "На точках нет денег для инкассации\\."
-                : "На твой баланс инкассировано " + encashmentMoney.get() + " руб\\.";
+                ? "На точках нет денег для инкассации."
+                : "На твой баланс инкассировано " + encashmentMoney.get() + " руб.";
 
-        telegramSender.editMessageWithMarkup(chatId, messageId, text,
+        telegramSender.editMessageWithMarkup(chatId, messageId, escape(text),
                 KeyboardUtils.createBackKeyboardMarkup());
     }
 
-    public String getShopStats(Long userId) {
-        Player player = playerController.findPlayer(userId);
+    public String getShopStats(Long userId, Long chatId) {
+        Player player = playerController.findPlayer(userId, chatId);
         List<IceShop> iceShops = iceShopController.findPlayersShops(player);
-
         if (iceShops.isEmpty()) {
             return NO_SHOPS_MESSAGE;
         }
@@ -287,8 +289,8 @@ public class TuttiShopService {
         iceShops.forEach(shop ->
                 sb.append("*__")
                         .append(shop.getShopName()).append("__:*\n")
-                        .append("Общий доход \\(руб\\.\\): ").append(shop.getTotalProfit()).append("\n")
-                        .append("Всего мороженого продано \\(гр\\.\\): ").append(shop.getTotalCream()).append("\n")
+                        .append("Общий доход руб.: ").append(shop.getTotalProfit()).append("\n")
+                        .append("Всего мороженого продано гр.: ").append(shop.getTotalCream()).append("\n")
                         .append("Количество улучшений: ").append(shop.getUpgrades().size()).append("\n\n")
         );
 
