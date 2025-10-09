@@ -57,7 +57,7 @@ public class TuttiFruttiService {
         log.debug("New value after calculation: {}", newValue);
 
         if (value < 0) {
-            List<Player> players = playerController.findAllPlayers();
+            List<Player> players = playerController.findAllByChat(chatId);
             boolean isRemoved = players.remove(player);
             log.info("Is Removed player: {}", isRemoved);
             Player stealPlayer = players.get(ThreadLocalRandom.current().nextInt(players.size() - 1));

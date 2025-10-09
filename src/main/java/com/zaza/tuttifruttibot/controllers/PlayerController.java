@@ -35,6 +35,11 @@ public class PlayerController {
         return playerService.findAll();
     }
 
+    public List<Player> findAllByChat(Long chatId) {
+        log.debug("Finding all players by chat ID: {}", chatId);
+        return playerService.findAllByChat(chatId);
+    }
+
     public List<Player> makeTopPlayers(Long chatId) {
         log.info("Creating top players list");
         List<Player> topPlayers = playerService.findAllByDescending(chatId);

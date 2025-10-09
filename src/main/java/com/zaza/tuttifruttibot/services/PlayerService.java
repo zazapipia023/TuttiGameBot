@@ -75,4 +75,8 @@ public class PlayerService {
     public List<Player> findAll() {
         return  playerRepository.findAll();
     }
+
+    public List<Player> findAllByChat(Long chatId) {
+        return playerRepository.findAllByChatId(chatId);
+    }
 }
