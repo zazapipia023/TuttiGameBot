@@ -260,7 +260,8 @@ public class TuttiFruttiService {
         Player player = playerController.findPlayer(userId, chatId);
         if (player == null) {
             player = new Player();
-            player.setId(userId);
+            player.setUserId(userId);
+            player.setChatId(chatId);
             player.setName(name);
             player.setProfit(0);
             player.setValue(0);
